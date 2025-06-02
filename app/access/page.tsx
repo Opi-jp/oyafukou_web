@@ -19,22 +19,6 @@ export default function AccessPage() {
           八丈島親不孝通りへのアクセス
         </h1>
 
-        {/* 地図セクション */}
-        <section className="mb-12">
-          <div className="bg-[#1A1A1A] rounded-lg overflow-hidden border border-[#2A2A2A]">
-            <iframe 
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3329.8988931577654!2d139.79661031520622!3d33.10747498087559!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMzPCsDA2JzI2LjkiTiAxMznCsDQ3JzU1LjgiRQ!5e0!3m2!1sja!2sjp!4v1650000000000!5m2!1sja!2sjp"
-              width="100%"
-              height="450"
-              style={{ border: 0 }}
-              allowFullScreen
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
-              className="w-full"
-            />
-          </div>
-        </section>
-
         {/* Google Map */}
         <section className="mb-12">
           <div className="bg-[#1A1A1A] p-4 rounded-lg border border-[#2A2A2A]">
