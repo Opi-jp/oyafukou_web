@@ -147,7 +147,19 @@ export default function StorePage() {
 
       {/* メインコンテンツ */}
       <main className="max-w-7xl mx-auto px-4 py-8">
-        {/* 店舗情報とトップ画像 */}
+        {/* 詳細ページトップ画像 */}
+        {store.detailImage1 && (
+          <div className="h-64 md:h-96 overflow-hidden rounded-lg bg-[#1A1A1A] mb-8">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img 
+              src={store.detailImage1} 
+              alt={store.name}
+              className="w-full h-full object-cover"
+            />
+          </div>
+        )}
+
+        {/* 店舗情報 */}
         <div className="mb-8">
           <div className="flex items-center gap-4 mb-4">
             <span className="bg-[#FF6B4A] text-white px-4 py-2 rounded text-sm font-bold">
@@ -160,23 +172,11 @@ export default function StorePage() {
 
           {/* 臨時休業のお知らせ */}
           {store.temporaryClosed && (
-            <div className="bg-orange-500/20 border border-orange-500/50 rounded-lg p-4 mb-6">
+            <div className="bg-orange-500/20 border border-orange-500/50 rounded-lg p-4">
               <p className="text-orange-500 font-bold mb-1">⚠️ 臨時休業中</p>
               {store.temporaryClosedReason && (
                 <p className="text-orange-300 text-sm">理由：{store.temporaryClosedReason}</p>
               )}
-            </div>
-          )}
-
-          {/* 詳細ページトップ画像 */}
-          {store.detailImage1 && (
-            <div className="h-64 md:h-96 overflow-hidden rounded-lg bg-[#1A1A1A]">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img 
-                src={store.detailImage1} 
-                alt={store.name}
-                className="w-full h-full object-cover"
-              />
             </div>
           )}
         </div>
@@ -392,8 +392,8 @@ export default function StorePage() {
           </div>
         )}
 
-        {/* 基本情報（最後に配置） */}
-        <div className={store.phone ? "mb-40" : "mb-20"}>
+        {/* 基本情報 */}
+        <div className="mb-8">
           <div className="bg-[#1A1A1A] p-6 rounded-lg border border-[#2A2A2A]">
             <h2 className="text-xl font-bold mb-4 text-[#FF6B4A]">基本情報</h2>
             <dl className="space-y-3">
@@ -418,6 +418,20 @@ export default function StorePage() {
             </dl>
           </div>
         </div>
+
+        {/* 外観画像（最後に配置） */}
+        {store.exteriorImage && (
+          <div className={store.phone ? "mb-40" : "mb-20"}>
+            <div className="h-64 md:h-96 overflow-hidden rounded-lg bg-[#1A1A1A]">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img 
+                src={store.exteriorImage} 
+                alt={`${store.name} 外観`}
+                className="w-full h-full object-cover"
+              />
+            </div>
+          </div>
+        )}
       </main>
       
       <Footer />
