@@ -38,17 +38,26 @@ export default function ImageUpload({
       const formData = new FormData();
       formData.append('file', file);
 
+      console.log('Uploading file:', file.name);
+      
       const response = await fetch('/api/upload', {
         method: 'POST',
         body: formData,
       });
 
+      const data = await response.json();
+      console.log('Upload response:', data);
+      
       if (!response.ok) {
-        throw new Error('アップロードに失敗しました');
+        throw new Error(data.error || 'アップロードに失敗しました');
       }
 
-      const { url } = await response.json();
-      onChange(url);
+      if (data.url) {
+        console.log('Setting image URL:', data.url);
+        onChange(data.url);
+      } else {
+        throw new Error('URLが返されませんでした');
+      }
     } catch (error) {
       console.error('Upload error:', error);
       alert('画像のアップロードに失敗しました');
