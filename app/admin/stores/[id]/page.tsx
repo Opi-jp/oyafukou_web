@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import ImageUpload from '@/components/ImageUpload';
 
 interface MenuItem {
   name: string;
@@ -274,25 +275,13 @@ export default function EditStore() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">店長写真URL</label>
-                  <input
-                    type="text"
-                    name="managerPhoto"
+                  <label className="block text-sm font-medium mb-1">店長写真</label>
+                  <ImageUpload
                     value={store.managerPhoto || ''}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    onChange={(url) => setStore({ ...store, managerPhoto: url })}
                     placeholder="/images/manager/store-name.jpg"
+                    circular
                   />
-                  {store.managerPhoto && (
-                    <div className="mt-2 w-32 h-32 rounded-full overflow-hidden border-4 border-blue-500">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img 
-                        src={store.managerPhoto} 
-                        alt="店長写真プレビュー"
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                  )}
                 </div>
                 <div>
                   <label className="block text-sm font-medium mb-1">店長コメント</label>
@@ -315,46 +304,20 @@ export default function EditStore() {
               <h2 className="text-xl font-bold mb-4">画像管理</h2>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium mb-1">トップ画像URL</label>
-                  <input
-                    type="text"
-                    name="topImage"
+                  <label className="block text-sm font-medium mb-1">トップ画像</label>
+                  <ImageUpload
                     value={store.topImage || ''}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    onChange={(url) => setStore({ ...store, topImage: url })}
                     placeholder="/images/top/store-name.jpg"
                   />
-                  {store.topImage && (
-                    <div className="mt-2 w-32 h-32 overflow-hidden rounded">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img 
-                        src={store.topImage} 
-                        alt="トップ画像プレビュー"
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                  )}
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">外観画像URL</label>
-                  <input
-                    type="text"
-                    name="exteriorImage"
+                  <label className="block text-sm font-medium mb-1">外観画像</label>
+                  <ImageUpload
                     value={store.exteriorImage || ''}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    onChange={(url) => setStore({ ...store, exteriorImage: url })}
                     placeholder="/exterior/store-name.jpg"
                   />
-                  {store.exteriorImage && (
-                    <div className="mt-2 w-32 h-32 overflow-hidden rounded">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img 
-                        src={store.exteriorImage} 
-                        alt="外観画像プレビュー"
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                  )}
                 </div>
                 <div>
                   <label className="block text-sm font-medium mb-1">その他の画像URL（カンマ区切り）</label>

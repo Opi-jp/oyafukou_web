@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import ImageUpload from '@/components/ImageUpload';
 
 interface Store {
   _id: string;
@@ -198,15 +199,12 @@ export default function Admin() {
                     className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
-                <div>
-                  <label className="block text-sm font-medium mb-1">外観画像URL</label>
-                  <input
-                    type="text"
-                    name="exteriorImage"
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium mb-1">外観画像</label>
+                  <ImageUpload
                     value={formData.exteriorImage}
-                    onChange={handleInputChange}
-                    placeholder="例: /exterior/store-name.jpg"
-                    className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    onChange={(url) => setFormData(prev => ({ ...prev, exteriorImage: url }))}
+                    placeholder="外観画像をアップロード"
                   />
                 </div>
                 <div className="flex items-center">

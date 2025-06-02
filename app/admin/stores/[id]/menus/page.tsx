@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
+import ImageUpload from '@/components/ImageUpload';
 
 interface MenuItem {
   name: string;
@@ -216,13 +217,13 @@ export default function MenuManager() {
                   onChange={(e) => setRecommendForm({ ...recommendForm, price: parseInt(e.target.value) || 0 })}
                   className="px-3 py-2 border rounded"
                 />
-                <input
-                  type="text"
-                  placeholder="画像URL"
-                  value={recommendForm.image}
-                  onChange={(e) => setRecommendForm({ ...recommendForm, image: e.target.value })}
-                  className="px-3 py-2 border rounded"
-                />
+                <div className="md:col-span-2">
+                  <ImageUpload
+                    value={recommendForm.image || ''}
+                    onChange={(url) => setRecommendForm({ ...recommendForm, image: url })}
+                    placeholder="画像をアップロード"
+                  />
+                </div>
                 <textarea
                   placeholder="説明"
                   value={recommendForm.description}
