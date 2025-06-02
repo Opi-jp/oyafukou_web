@@ -32,6 +32,8 @@ interface Store {
   managerPhoto?: string;
   managerComment?: string;
   topImage?: string;
+  detailImage1?: string;
+  detailImage2?: string;
   exteriorImage?: string;
   images: string[];
   isOpen: boolean;
@@ -304,11 +306,27 @@ export default function EditStore() {
               <h2 className="text-xl font-bold mb-4">画像管理</h2>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium mb-1">トップ画像</label>
+                  <label className="block text-sm font-medium mb-1">トップページ用画像</label>
                   <ImageUpload
                     value={store.topImage || ''}
                     onChange={(url) => setStore({ ...store, topImage: url })}
                     placeholder="/images/top/store-name.jpg"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">詳細ページトップ画像</label>
+                  <ImageUpload
+                    value={store.detailImage1 || ''}
+                    onChange={(url) => setStore({ ...store, detailImage1: url })}
+                    placeholder="/images/detail1/store-name.jpg"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">詳細ページその2画像</label>
+                  <ImageUpload
+                    value={store.detailImage2 || ''}
+                    onChange={(url) => setStore({ ...store, detailImage2: url })}
+                    placeholder="/images/detail2/store-name.jpg"
                   />
                 </div>
                 <div>

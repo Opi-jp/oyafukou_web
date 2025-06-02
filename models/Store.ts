@@ -106,6 +106,14 @@ const StoreSchema = new mongoose.Schema({
     type: String,
     trim: true
   },
+  detailImage1: {
+    type: String,
+    trim: true
+  },
+  detailImage2: {
+    type: String,
+    trim: true
+  },
   exteriorImage: {
     type: String,
     trim: true
