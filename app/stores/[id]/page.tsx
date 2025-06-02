@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import Image from 'next/image';
 
 interface MenuItem {
   name: string;
@@ -47,26 +46,27 @@ export default function StorePage() {
   const [activeTab, setActiveTab] = useState('recommend');
 
   useEffect(() => {
+    const fetchStore = async (id: string) => {
+      try {
+        const response = await fetch(`/api/stores/${id}`);
+        if (!response.ok) {
+          throw new Error('Store not found');
+        }
+        const data = await response.json();
+        setStore(data);
+      } catch (error) {
+        console.error('店舗データの取得に失敗しました:', error);
+        router.push('/');
+      } finally {
+        setLoading(false);
+      }
+    };
+
     if (params.id) {
       fetchStore(params.id as string);
     }
-  }, [params.id]);
+  }, [params.id, router]);
 
-  const fetchStore = async (id: string) => {
-    try {
-      const response = await fetch(`/api/stores/${id}`);
-      if (!response.ok) {
-        throw new Error('Store not found');
-      }
-      const data = await response.json();
-      setStore(data);
-    } catch (error) {
-      console.error('店舗データの取得に失敗しました:', error);
-      router.push('/');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   // メニューをカテゴリ別にグループ化
   const groupByCategory = (items: CategoryMenuItem[]) => {

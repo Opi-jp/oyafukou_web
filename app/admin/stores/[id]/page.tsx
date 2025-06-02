@@ -4,6 +4,20 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 
+interface MenuItem {
+  name: string;
+  price: number;
+  description: string;
+  image?: string;
+  isRecommended?: boolean;
+}
+
+interface CategoryMenuItem {
+  name: string;
+  price: number;
+  category: string;
+}
+
 interface Store {
   _id: string;
   name: string;
@@ -19,9 +33,9 @@ interface Store {
   exteriorImage?: string;
   images: string[];
   isOpen: boolean;
-  menuHighlights: any[];
-  regularMenu: any[];
-  drinkMenu: any[];
+  menuHighlights: MenuItem[];
+  regularMenu: CategoryMenuItem[];
+  drinkMenu: CategoryMenuItem[];
 }
 
 export default function EditStore() {
