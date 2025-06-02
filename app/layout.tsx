@@ -4,14 +4,16 @@ import "./globals.css";
 
 const mplus1p = M_PLUS_1p({
   weight: ['400', '700', '900'],
-  subsets: ["latin", "japanese"],
+  subsets: ["latin"],
   variable: "--font-mplus1p",
+  preload: false,
 });
 
 const notoSansJP = Noto_Sans_JP({
   weight: ['400', '700', '900'],
-  subsets: ["latin", "japanese"],
+  subsets: ["latin"],
   variable: "--font-noto-sans-jp",
+  preload: false,
 });
 
 export const metadata: Metadata = {
