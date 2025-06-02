@@ -94,6 +94,28 @@ export default function Admin() {
     }
   };
 
+  const handleDelete = async (id: string, name: string) => {
+    if (!confirm(`本当に「${name}」を削除しますか？この操作は取り消せません。`)) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/stores/${id}`, {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        alert('店舗を削除しました');
+        fetchStores();
+      } else {
+        throw new Error('削除に失敗しました');
+      }
+    } catch (error) {
+      console.error('店舗の削除に失敗しました:', error);
+      alert('店舗の削除に失敗しました');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-100 text-gray-900">
       <header className="bg-gray-900 text-white p-4">
@@ -279,12 +301,20 @@ export default function Admin() {
                         </span>
                       </td>
                       <td className="px-4 py-2">
-                        <Link 
-                          href={`/admin/stores/${store._id}`}
-                          className="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700"
-                        >
-                          編集
-                        </Link>
+                        <div className="flex gap-2">
+                          <Link 
+                            href={`/admin/stores/${store._id}`}
+                            className="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700"
+                          >
+                            編集
+                          </Link>
+                          <button
+                            onClick={() => handleDelete(store._id, store.name)}
+                            className="bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700"
+                          >
+                            削除
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}
