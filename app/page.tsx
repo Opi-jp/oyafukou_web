@@ -95,6 +95,7 @@ export default function Home() {
                 <div className="bg-[#1A1A1A] rounded-lg overflow-hidden hover:transform hover:-translate-y-2 hover:shadow-2xl transition-all duration-300 cursor-pointer border border-[#2A2A2A] hover:border-[#FF6B4A]">
                   {store.exteriorImage && (
                     <div className="h-48 overflow-hidden bg-[#0A0A0A]">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img 
                         src={store.exteriorImage.replace('/images/', '/')} 
                         alt={store.name}
