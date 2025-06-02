@@ -35,11 +35,32 @@ export default function AccessPage() {
           </div>
         </section>
 
+        {/* Google Map */}
+        <section className="mb-12">
+          <div className="bg-[#1A1A1A] p-4 rounded-lg border border-[#2A2A2A]">
+            <div className="relative w-full h-[400px] rounded-lg overflow-hidden">
+              <iframe 
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3255.7841891695!2d139.78825!3d33.11389!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2z44CSMTAwLTE1MTEg5p2x5Lqs6YO95YWr5LiI5bO25YWr5LiI55S65LiJ5qC5MTg5Ny0y!5e0!3m2!1sja!2sjp!4v1733106000000!5m2!1sja!2sjp"
+                width="100%" 
+                height="100%" 
+                style={{ border: 0 }}
+                allowFullScreen
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                className="grayscale"
+              />
+            </div>
+            <p className="text-center text-sm text-gray-400 mt-2">
+              〒100-1511 東京都八丈島八丈町三根1897-2
+            </p>
+          </div>
+        </section>
+
         {/* アクセス方法 */}
         <section className="space-y-8">
           <div className="bg-[#1A1A1A] p-6 rounded-lg border border-[#2A2A2A]">
             <h2 className="text-2xl font-bold mb-4 text-[#FF6B4A]">所在地</h2>
-            <p className="text-lg">東京都八丈島八丈町三根</p>
+            <p className="text-lg">〒100-1511 東京都八丈島八丈町三根1897-2</p>
             <p className="text-gray-400 mt-2">※親不孝通りは通称です。正式な地名ではありません。</p>
           </div>
 

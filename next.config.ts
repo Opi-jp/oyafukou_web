@@ -25,6 +25,7 @@ const nextConfig: NextConfig = {
               "connect-src 'self' https://*.public.blob.vercel-storage.com",
               "media-src 'self' https://*.public.blob.vercel-storage.com",
               "object-src 'none'",
+              "frame-src https://www.google.com",
               "frame-ancestors 'none'",
               "base-uri 'self'",
               "form-action 'self'",
