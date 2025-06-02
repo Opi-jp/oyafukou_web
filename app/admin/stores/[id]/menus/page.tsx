@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import Link from 'next/link';
 
 interface MenuItem {
@@ -28,7 +28,6 @@ interface Store {
 
 export default function MenuManager() {
   const params = useParams();
-  const router = useRouter();
   const [store, setStore] = useState<Store | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('recommend');
