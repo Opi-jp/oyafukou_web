@@ -52,7 +52,7 @@ export default function Home() {
           </Link>
           <nav className="flex items-center gap-6">
             <Link href="/" className="text-white hover:text-[#FF6B4A] transition-colors font-medium">
-              店舗
+              ホーム
             </Link>
             <Link href="/access" className="text-white hover:text-[#FF6B4A] transition-colors font-medium">
               アクセス
