@@ -44,6 +44,7 @@ interface Store {
   temporaryClosedReason?: string;
 }
 
+// Force redeploy - 2025-06-02
 export default function StorePage() {
   const params = useParams();
   const router = useRouter();
