@@ -93,7 +93,7 @@ export default function Admin() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gray-100 text-gray-900">
       <header className="bg-gray-900 text-white p-4">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
           <h1 className="text-2xl font-bold">八丈島親不孝通り 管理システム</h1>
