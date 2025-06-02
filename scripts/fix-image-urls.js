@@ -21,7 +21,8 @@ async function fixImageUrls() {
       '/uploads/store-j-soul.jpg': '/exterior/Jsoul.jpg',
       '/uploads/store-club-gets.jpg': '/exterior/GETZ.jpeg',
       '/uploads/store-okonomiyaki.jpg': '/exterior/lava.jpg',
-      '/uploads/store-mens-club.jpg': '/exterior/mens-club.jpg'
+      '/uploads/store-mens-club.jpg': '/exterior/mens-club.jpg',
+      '/uploads/store-sannenme-kentaiki.jpg': '/exterior/sannenme-kentaiki.jpg'
     };
 
     // すべての店舗を取得
