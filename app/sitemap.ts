@@ -31,9 +31,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ]
   
   // 店舗ページ
-  const storePages = stores.map((store: any) => ({
+  const storePages = stores.map((store: { _id: string; updatedAt?: string; createdAt?: string }) => ({
     url: `${baseUrl}/stores/${store._id}`,
-    lastModified: new Date(store.updatedAt || store.createdAt),
+    lastModified: new Date(store.updatedAt || store.createdAt || new Date()),
     changeFrequency: 'weekly' as const,
     priority: 0.9,
   }))

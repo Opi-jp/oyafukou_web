@@ -20,7 +20,19 @@ export function SiteStructuredData() {
   );
 }
 
-export function StoreStructuredData({ store }: { store: any }) {
+interface StoreData {
+  _id: string;
+  name: string;
+  description: string;
+  phone?: string;
+  address: string;
+  openingHours: string;
+  category: string;
+  topImage?: string;
+  exteriorImage?: string;
+}
+
+export function StoreStructuredData({ store }: { store: StoreData }) {
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "Restaurant",
