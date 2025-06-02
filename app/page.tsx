@@ -68,15 +68,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 管理画面リンク */}
-      <div className="text-center my-8">
-        <Link 
-          href="/admin"
-          className="inline-block bg-blue-600 text-white px-6 py-3 rounded hover:bg-blue-700 transition-colors"
-        >
-          管理画面へ
-        </Link>
-      </div>
 
       {/* 店舗一覧 */}
       <section className="max-w-7xl mx-auto px-4 pb-16">

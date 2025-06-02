@@ -33,6 +33,7 @@ export default function StorePage() {
   const router = useRouter();
   const [store, setStore] = useState<Store | null>(null);
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState('recommend');
 
   useEffect(() => {
     if (params.id) {

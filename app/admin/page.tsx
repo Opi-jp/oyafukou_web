@@ -243,6 +243,7 @@ export default function Admin() {
                     <th className="px-4 py-2 text-left">営業時間</th>
                     <th className="px-4 py-2 text-left">定休日</th>
                     <th className="px-4 py-2 text-left">状態</th>
+                    <th className="px-4 py-2 text-left">操作</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -260,6 +261,14 @@ export default function Admin() {
                         }`}>
                           {store.isOpen ? '営業中' : '休業中'}
                         </span>
+                      </td>
+                      <td className="px-4 py-2">
+                        <Link 
+                          href={`/admin/stores/${store._id}`}
+                          className="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700"
+                        >
+                          編集
+                        </Link>
                       </td>
                     </tr>
                   ))}

@@ -20,6 +20,22 @@ const MenuItemSchema = new mongoose.Schema({
   }
 });
 
+// カテゴリ別メニューアイテムスキーマ
+const CategoryMenuItemSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true
+  },
+  price: {
+    type: Number,
+    required: true
+  },
+  category: {
+    type: String,
+    required: true
+  }
+});
+
 const StoreSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -56,9 +72,35 @@ const StoreSchema = new mongoose.Schema({
     required: [true, '住所は必須です'],
     trim: true
   },
+  // おすすめメニュー（写真と説明付き）
   menuHighlights: {
     type: [MenuItemSchema],
     default: []
+  },
+  // 通常メニュー（カテゴリ分け）
+  regularMenu: {
+    type: [CategoryMenuItemSchema],
+    default: []
+  },
+  // ドリンクメニュー（カテゴリ分け）
+  drinkMenu: {
+    type: [CategoryMenuItemSchema],
+    default: []
+  },
+  // 店長情報
+  managerName: {
+    type: String,
+    trim: true
+  },
+  managerComment: {
+    type: String,
+    trim: true,
+    maxlength: [1000, '店長コメントは1000文字以内にしてください']
+  },
+  // 画像管理
+  topImage: {
+    type: String,
+    trim: true
   },
   exteriorImage: {
     type: String,
