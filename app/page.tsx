@@ -12,6 +12,7 @@ interface Store {
   description: string;
   openingHours: string;
   closedDays: string[];
+  topImage?: string;
   exteriorImage?: string;
   isOpen: boolean;
 }
@@ -113,10 +114,10 @@ export default function Home() {
               <Link href={`/stores/${store._id}`} key={store._id}>
                 <div className="bg-[#1A1A1A] rounded-lg overflow-hidden hover:transform hover:-translate-y-2 hover:shadow-2xl transition-all duration-300 cursor-pointer border border-[#2A2A2A] hover:border-[#FF6B4A]">
                   <div className="h-48 overflow-hidden bg-[#0A0A0A]">
-                    {store.exteriorImage ? (
+                    {store.topImage ? (
                       /* eslint-disable-next-line @next/next/no-img-element */
                       <img 
-                        src={store.exteriorImage.replace('/images/', '/')} 
+                        src={store.topImage} 
                         alt={store.name}
                         className="w-full h-full object-cover"
                       />
