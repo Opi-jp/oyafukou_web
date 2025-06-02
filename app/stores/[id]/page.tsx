@@ -49,6 +49,7 @@ export default function StorePage() {
   const router = useRouter();
   const [store, setStore] = useState<Store | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string>('');
   const [activeTab, setActiveTab] = useState('recommend');
 
   useEffect(() => {
@@ -62,7 +63,7 @@ export default function StorePage() {
         setStore(data);
       } catch (error) {
         console.error('店舗データの取得に失敗しました:', error);
-        router.push('/');
+        setError(error instanceof Error ? error.message : 'データの取得に失敗しました');
       } finally {
         setLoading(false);
       }
@@ -89,6 +90,23 @@ export default function StorePage() {
     return (
       <div className="min-h-screen bg-[#0A0A0A] text-white flex items-center justify-center">
         <p className="text-xl">読み込み中...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-[#0A0A0A] text-white flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-xl text-red-500 mb-4">エラーが発生しました</p>
+          <p className="text-gray-400">{error}</p>
+          <button 
+            onClick={() => router.push('/')}
+            className="mt-4 px-4 py-2 bg-[#FF6B4A] text-white rounded hover:bg-[#FF8A6A]"
+          >
+            トップページに戻る
+          </button>
+        </div>
       </div>
     );
   }
