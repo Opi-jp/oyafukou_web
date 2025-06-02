@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Footer from '@/components/Footer';
+import Header from '@/components/Header';
 import { StoreStructuredData } from '@/components/StructuredData';
 
 interface MenuItem {
@@ -123,10 +124,12 @@ export default function StorePage() {
   return (
     <div className="min-h-screen bg-[#0A0A0A] text-white">
       <StoreStructuredData store={store} />
-      {/* ヘッダー */}
-      <header className="bg-[#1A1A1A] border-b border-[#2A2A2A]">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-          <Link href="/" className="text-[#FF6B4A] hover:text-[#FF8A6A] transition-colors">
+      <Header />
+      
+      {/* ステータスバー */}
+      <div className="bg-[#1A1A1A] border-b border-[#2A2A2A]">
+        <div className="max-w-7xl mx-auto px-4 py-2 flex items-center justify-between">
+          <Link href="/" className="text-[#FF6B4A] hover:text-[#FF8A6A] transition-colors text-sm">
             ← 一覧に戻る
           </Link>
           <div className={`px-3 py-1 rounded text-sm font-bold ${
@@ -139,7 +142,7 @@ export default function StorePage() {
             {store.temporaryClosed ? '臨時休業' : store.isOpen ? '営業中' : '定休日'}
           </div>
         </div>
-      </header>
+      </div>
 
       {/* メインコンテンツ */}
       <main className="max-w-7xl mx-auto px-4 py-8">

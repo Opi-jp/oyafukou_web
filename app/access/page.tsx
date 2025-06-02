@@ -1,17 +1,13 @@
+'use client';
+
 import Link from 'next/link';
 import Footer from '@/components/Footer';
+import Header from '@/components/Header';
 
 export default function AccessPage() {
   return (
     <div className="min-h-screen bg-[#0A0A0A] text-white">
-      {/* ヘッダー */}
-      <header className="bg-[#1A1A1A] border-b border-[#2A2A2A]">
-        <div className="max-w-7xl mx-auto px-4 py-4">
-          <Link href="/" className="text-[#FF6B4A] hover:text-[#FF8A6A] transition-colors">
-            ← トップに戻る
-          </Link>
-        </div>
-      </header>
+      <Header />
 
       {/* メインコンテンツ */}
       <main className="max-w-4xl mx-auto px-4 py-12">

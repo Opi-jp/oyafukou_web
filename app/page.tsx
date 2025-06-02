@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import Footer from '@/components/Footer';
+import Header from '@/components/Header';
 import { SiteStructuredData } from '@/components/StructuredData';
 
 interface Store {
@@ -41,32 +42,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-[#0A0A0A] text-white">
       <SiteStructuredData />
-      {/* ヘッダー */}
-      <header className="bg-[#1A1A1A] border-b border-[#2A2A2A] sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 py-4">
-          <div className="flex justify-center mb-2">
-            <Link href="/" className="inline-block">
-              <Image 
-                src="/logo/親不孝通り_logo_yoko.svg" 
-                alt="八丈島親不孝通り" 
-                width={240}
-                height={60}
-                priority
-                className="h-12 w-auto"
-              />
-            </Link>
-          </div>
-          <nav className="flex items-center justify-center gap-2 text-sm">
-            <Link href="/" className="text-white hover:text-[#FF6B4A] transition-colors font-medium">
-              ホーム
-            </Link>
-            <span className="text-gray-500">|</span>
-            <Link href="/access" className="text-white hover:text-[#FF6B4A] transition-colors font-medium">
-              アクセス
-            </Link>
-          </nav>
-        </div>
-      </header>
+      <Header />
       {/* ヒーローセクション */}
       <section className="relative h-[80vh] min-h-[500px] flex items-center justify-center mb-4 overflow-hidden">
         <div 
