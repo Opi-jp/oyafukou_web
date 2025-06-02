@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface ImageUploadProps {
   value: string;
@@ -16,6 +16,15 @@ export default function ImageUpload({
   circular = false 
 }: ImageUploadProps) {
   const [uploading, setUploading] = useState(false);
+  const [imageLoading, setImageLoading] = useState(false);
+  const [imageError, setImageError] = useState(false);
+
+  useEffect(() => {
+    if (value) {
+      setImageLoading(true);
+      setImageError(false);
+    }
+  }, [value]);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -90,14 +99,48 @@ export default function ImageUpload({
       </div>
       
       {value && (
-        <div className={`mt-2 ${circular ? 'w-32 h-32' : 'w-48 h-32'} overflow-hidden ${circular ? 'rounded-full border-4 border-blue-500' : 'rounded'}`}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img 
-            src={value} 
-            alt="プレビュー"
-            className="w-full h-full object-cover"
-          />
-        </div>
+        <>
+          <div className={`mt-2 ${circular ? 'w-32 h-32' : 'w-48 h-32'} overflow-hidden ${circular ? 'rounded-full border-4 border-blue-500' : 'rounded'} bg-gray-100 relative`}>
+            {imageLoading && (
+              <div className="absolute inset-0 flex items-center justify-center bg-gray-200">
+                <span className="text-gray-500">読み込み中...</span>
+              </div>
+            )}
+            {imageError ? (
+              <div className="absolute inset-0 flex items-center justify-center bg-gray-200">
+                <span className="text-red-500 text-sm text-center px-2">画像を読み込めません</span>
+              </div>
+            ) : (
+              <>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img 
+                  src={value} 
+                  alt="プレビュー"
+                  className="w-full h-full object-cover"
+                  onLoad={() => {
+                    console.log('Image loaded successfully:', value);
+                    setImageLoading(false);
+                    setImageError(false);
+                  }}
+                  onError={(e) => {
+                    console.error('Image failed to load:', value);
+                    console.error('Error details:', e);
+                    // ブラウザコンソールに詳細情報を出力
+                    if (typeof window !== 'undefined') {
+                      console.error('Window location:', window.location.href);
+                      console.error('Image element:', e.currentTarget);
+                    }
+                    setImageLoading(false);
+                    setImageError(true);
+                  }}
+                />
+              </>
+            )}
+          </div>
+          <div className="text-xs text-gray-500 mt-1 break-all">
+            URL: {value}
+          </div>
+        </>
       )}
     </div>
   );
