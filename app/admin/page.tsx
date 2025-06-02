@@ -13,6 +13,7 @@ interface Store {
   closedDays: string[];
   phone: string;
   address: string;
+  topImage?: string;
   exteriorImage: string;
   isOpen: boolean;
 }
@@ -236,6 +237,7 @@ export default function Admin() {
               <table className="w-full">
                 <thead className="bg-gray-50">
                   <tr>
+                    <th className="px-4 py-2 text-left">画像</th>
                     <th className="px-4 py-2 text-left">店舗名</th>
                     <th className="px-4 py-2 text-left">カテゴリー</th>
                     <th className="px-4 py-2 text-left">営業時間</th>
@@ -248,24 +250,22 @@ export default function Admin() {
                   {stores.map(store => (
                     <tr key={store._id} className="border-b">
                       <td className="px-4 py-2">
-                        <div className="flex items-center">
-                          <div className="w-12 h-12 mr-3 overflow-hidden rounded">
-                            {store.exteriorImage ? (
-                              /* eslint-disable-next-line @next/next/no-img-element */
-                              <img 
-                                src={store.exteriorImage} 
-                                alt={store.name}
-                                className="w-full h-full object-cover"
-                              />
-                            ) : (
-                              <div className="w-full h-full flex items-center justify-center bg-gray-300">
-                                <span className="text-xs font-bold text-gray-500">NO</span>
-                              </div>
-                            )}
-                          </div>
-                          {store.name}
+                        <div className="w-16 h-16 overflow-hidden rounded">
+                          {store.topImage ? (
+                            /* eslint-disable-next-line @next/next/no-img-element */
+                            <img 
+                              src={store.topImage} 
+                              alt={store.name}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center bg-gray-300">
+                              <span className="text-xs font-bold text-gray-500">NO IMG</span>
+                            </div>
+                          )}
                         </div>
                       </td>
+                      <td className="px-4 py-2 font-semibold">{store.name}</td>
                       <td className="px-4 py-2">{store.category}</td>
                       <td className="px-4 py-2">{store.openingHours}</td>
                       <td className="px-4 py-2">{store.closedDays.join(', ') || 'なし'}</td>
