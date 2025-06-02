@@ -18,7 +18,52 @@ const notoSansJP = Noto_Sans_JP({
 
 export const metadata: Metadata = {
   title: "八丈島親不孝通り - 親には言えない夜が、ここにある",
-  description: "八丈島唯一のはしご酒エリア。焼肉、寿司、ラーメン、カラオケまで、島の夜を彩る全店舗情報",
+  description: "八丈島唯一のはしご酒エリア。焼肉、寿司、ラーメン、カラオケまで、島の夜を彩る全店舗情報。営業時間、メニュー、アクセス情報を完全網羅。",
+  keywords: "八丈島,親不孝通り,飲み屋,バー,居酒屋,焼肉,スナック,クラブ,夜遊び,はしご酒",
+  authors: [{ name: "八丈島親不孝通り" }],
+  openGraph: {
+    title: "八丈島親不孝通り - 親には言えない夜が、ここにある",
+    description: "八丈島唯一のはしご酒エリア。焼肉、寿司、ラーメン、カラオケまで、島の夜を彩る全店舗情報",
+    url: "https://oyafukou-web.vercel.app",
+    siteName: "八丈島親不孝通り",
+    images: [
+      {
+        url: "/ogp-image.jpg",
+        width: 1200,
+        height: 630,
+        alt: "八丈島親不孝通り",
+      }
+    ],
+    locale: "ja_JP",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "八丈島親不孝通り - 親には言えない夜が、ここにある",
+    description: "八丈島唯一のはしご酒エリア。焼肉、寿司、ラーメン、カラオケまで、島の夜を彩る全店舗情報",
+    images: ["/ogp-image.jpg"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+  icons: {
+    icon: [
+      { url: '/favicon.ico' },
+      { url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
+      { url: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
+    ],
+    apple: [
+      { url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
+    ],
+  },
 };
 
 export default function RootLayout({

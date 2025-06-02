@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import Footer from '@/components/Footer';
+import { SiteStructuredData } from '@/components/StructuredData';
 
 interface Store {
   _id: string;
@@ -39,6 +40,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-[#0A0A0A] text-white">
+      <SiteStructuredData />
       {/* ヘッダー */}
       <header className="bg-[#1A1A1A] border-b border-[#2A2A2A] sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 py-4">

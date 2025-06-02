@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Footer from '@/components/Footer';
+import { StoreStructuredData } from '@/components/StructuredData';
 
 interface MenuItem {
   name: string;
@@ -55,15 +56,12 @@ export default function StorePage() {
 
   useEffect(() => {
     const fetchStore = async (id: string) => {
-      console.log('Fetching store data for ID:', id);
       try {
         const response = await fetch(`/api/stores/${id}`);
-        console.log('API Response status:', response.status);
         if (!response.ok) {
           throw new Error('Store not found');
         }
         const data = await response.json();
-        console.log('Store data received:', data);
         setStore(data);
       } catch (error) {
         console.error('店舗データの取得に失敗しました:', error);
@@ -74,10 +72,7 @@ export default function StorePage() {
     };
 
     if (params.id) {
-      console.log('Params ID:', params.id);
       fetchStore(params.id as string);
-    } else {
-      console.log('No params ID found');
     }
   }, [params.id, router]);
 
@@ -127,6 +122,7 @@ export default function StorePage() {
 
   return (
     <div className="min-h-screen bg-[#0A0A0A] text-white">
+      <StoreStructuredData store={store} />
       {/* ヘッダー */}
       <header className="bg-[#1A1A1A] border-b border-[#2A2A2A]">
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
