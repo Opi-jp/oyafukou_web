@@ -122,7 +122,7 @@ export default function StorePage() {
 
       {/* メインコンテンツ */}
       <main className="max-w-7xl mx-auto px-4 py-8">
-        {/* 店舗情報とトップ画像 */}
+        {/* 店舗情報 */}
         <div className="mb-8">
           <div className="flex items-center gap-4 mb-4">
             <span className="bg-[#FF6B4A] text-white px-4 py-2 rounded text-sm font-bold">
@@ -145,7 +145,7 @@ export default function StorePage() {
 
           {/* 詳細ページトップ画像 */}
           {store.detailImage1 && (
-            <div className="h-64 md:h-96 overflow-hidden rounded-lg bg-[#1A1A1A]">
+            <div className="h-64 md:h-96 overflow-hidden rounded-lg bg-[#1A1A1A] mb-8">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img 
                 src={store.detailImage1} 
@@ -155,42 +155,6 @@ export default function StorePage() {
             </div>
           )}
         </div>
-
-        {/* 店長コメント */}
-        {(store.managerName || store.managerComment || store.managerPhoto) && (
-          <div className="mb-8">
-            <div className="bg-[#1A1A1A] p-6 rounded-lg border border-[#2A2A2A]">
-              <h3 className="text-lg font-bold mb-4 text-[#FFD700]">店長より</h3>
-              <div className="flex flex-col items-center">
-                {store.managerPhoto ? (
-                  <div className="w-32 h-32 rounded-full overflow-hidden mb-4 border-4 border-[#FFD700]">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img 
-                      src={store.managerPhoto} 
-                      alt={store.managerName || '店長'}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                ) : (
-                  <div className="w-32 h-32 rounded-full bg-[#2A2A2A] flex items-center justify-center mb-4 border-4 border-[#FFD700]">
-                    <span className="text-gray-500 text-sm font-bold">NO IMAGE</span>
-                  </div>
-                )}
-                {store.managerName && (
-                  <p className="text-lg font-bold mb-4">{store.managerName}</p>
-                )}
-                {store.managerComment && (
-                  <div className="relative w-full max-w-md">
-                    <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-[10px] border-l-transparent border-r-[10px] border-r-transparent border-b-[15px] border-b-[#FFD700]"></div>
-                    <div className="bg-[#FFD700] text-black p-4 rounded-lg">
-                      <p className="text-sm leading-relaxed">{store.managerComment}</p>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
 
         {/* メニュータブ */}
         <div className="mb-8">
@@ -328,50 +292,84 @@ export default function StorePage() {
           )}
         </div>
 
-        {/* 基本情報 */}
+        {/* 基本情報セクション */}
         <div className="mb-8">
-          <div className="bg-[#1A1A1A] p-6 rounded-lg border border-[#2A2A2A]">
-            <h2 className="text-xl font-bold mb-4 text-[#FF6B4A]">基本情報</h2>
-            <dl className="space-y-3">
-              <div>
-                <dt className="text-gray-400 text-sm">営業時間</dt>
-                <dd className="text-lg">{store.openingHours}</dd>
-              </div>
-              <div>
-                <dt className="text-gray-400 text-sm">定休日</dt>
-                <dd className="text-lg">{store.closedDays.join('、') || 'なし'}</dd>
-              </div>
-              {store.phone && (
-                <div>
-                  <dt className="text-gray-400 text-sm">電話番号</dt>
-                  <dd className="text-lg">{store.phone}</dd>
+          <div className="grid md:grid-cols-2 gap-8">
+            {/* 店長情報 */}
+            {(store.managerName || store.managerComment || store.managerPhoto) && (
+              <div className="bg-[#1A1A1A] p-6 rounded-lg border border-[#2A2A2A]">
+                <h3 className="text-lg font-bold mb-4 text-[#FFD700]">店長より</h3>
+                <div className="flex flex-col items-center">
+                  {store.managerPhoto ? (
+                    <div className="w-32 h-32 rounded-full overflow-hidden mb-4 border-4 border-[#FFD700]">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img 
+                        src={store.managerPhoto} 
+                        alt={store.managerName || '店長'}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  ) : (
+                    <div className="w-32 h-32 rounded-full bg-[#2A2A2A] flex items-center justify-center mb-4 border-4 border-[#FFD700]">
+                      <span className="text-gray-500 text-sm font-bold">NO IMAGE</span>
+                    </div>
+                  )}
+                  {store.managerName && (
+                    <p className="text-lg font-bold mb-4">{store.managerName}</p>
+                  )}
+                  {store.managerComment && (
+                    <div className="relative w-full max-w-md">
+                      <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-[10px] border-l-transparent border-r-[10px] border-r-transparent border-b-[15px] border-b-[#FFD700]"></div>
+                      <div className="bg-[#FFD700] text-black p-4 rounded-lg">
+                        <p className="text-sm leading-relaxed">{store.managerComment}</p>
+                      </div>
+                    </div>
+                  )}
                 </div>
-              )}
-              <div>
-                <dt className="text-gray-400 text-sm">住所</dt>
-                <dd className="text-lg">{store.address}</dd>
               </div>
-            </dl>
+            )}
+
+            <div className="bg-[#1A1A1A] p-6 rounded-lg border border-[#2A2A2A]">
+              <h2 className="text-xl font-bold mb-4 text-[#FF6B4A]">基本情報</h2>
+              <dl className="space-y-3">
+                <div>
+                  <dt className="text-gray-400 text-sm">営業時間</dt>
+                  <dd className="text-lg">{store.openingHours}</dd>
+                </div>
+                <div>
+                  <dt className="text-gray-400 text-sm">定休日</dt>
+                  <dd className="text-lg">{store.closedDays.join('、') || 'なし'}</dd>
+                </div>
+                {store.phone && (
+                  <div>
+                    <dt className="text-gray-400 text-sm">電話番号</dt>
+                    <dd className="text-lg">{store.phone}</dd>
+                  </div>
+                )}
+                <div>
+                  <dt className="text-gray-400 text-sm">住所</dt>
+                  <dd className="text-lg">{store.address}</dd>
+                </div>
+              </dl>
+            </div>
           </div>
         </div>
 
         {/* 詳細ページその2画像 */}
         {store.detailImage2 && (
-          <div className="mb-8">
-            <div className="h-64 md:h-96 overflow-hidden rounded-lg bg-[#1A1A1A]">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img 
-                src={store.detailImage2} 
-                alt={store.name}
-                className="w-full h-full object-cover"
-              />
-            </div>
+          <div className="h-64 md:h-96 overflow-hidden rounded-lg bg-[#1A1A1A] mb-8">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img 
+              src={store.detailImage2} 
+              alt={store.name}
+              className="w-full h-full object-cover"
+            />
           </div>
         )}
 
         {/* ギャラリー */}
         {store.images && store.images.length > 0 && (
-          <div className="mb-8">
+          <div>
             <h2 className="text-2xl font-bold mb-6 text-[#FF6B4A]">ギャラリー</h2>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
               {store.images.map((image, index) => (
@@ -395,14 +393,8 @@ export default function StorePage() {
         )}
       </main>
 
-      {/* フッターとボタンのための余白 */}
-      {store.phone ? (
-        // 電話ボタンがある場合は大きめの余白
-        <div className="h-40" />
-      ) : (
-        // 電話ボタンがない場合は通常の余白
-        <div className="h-20" />
-      )}
+      {/* 電話ボタンのためのスペース */}
+      {store.phone && <div className="h-20" />}
       
       <Footer />
 
