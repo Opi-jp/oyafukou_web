@@ -170,11 +170,6 @@ export default function Home() {
                     アクセス
                   </Link>
                 </li>
-                <li>
-                  <Link href="/admin" className="text-gray-400 hover:text-white text-sm transition-colors">
-                    管理画面
-                  </Link>
-                </li>
               </ul>
             </div>
             <div>
