@@ -1,103 +1,130 @@
-import Image from "next/image";
+'use client';
+
+import { useEffect, useState } from 'react';
+import Link from 'next/link';
+import Image from 'next/image';
+
+interface Store {
+  _id: string;
+  name: string;
+  category: string;
+  description: string;
+  openingHours: string;
+  closedDays: string[];
+  exteriorImage?: string;
+  isOpen: boolean;
+}
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [stores, setStores] = useState<Store[]>([]);
+  const [loading, setLoading] = useState(true);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+  useEffect(() => {
+    fetchStores();
+  }, []);
+
+  const fetchStores = async () => {
+    try {
+      const response = await fetch('/api/stores');
+      const data = await response.json();
+      setStores(data);
+    } catch (error) {
+      console.error('店舗データの取得に失敗しました:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-[#0A0A0A] text-white">
+      {/* ヒーローセクション */}
+      <section className="relative h-[80vh] min-h-[500px] flex items-center justify-center mb-4 overflow-hidden">
+        <div 
+          className="absolute inset-0 z-0 bg-cover bg-center"
+          style={{
+            backgroundImage: 'url(/hero-background.png)',
+            filter: 'brightness(0.4)'
+          }}
+        />
+        <div className="relative z-10 text-center px-8 max-w-4xl">
+          <Image 
+            src="/CATCH_MAIN.svg" 
+            alt="親には言えない夜が、ここにある" 
+            width={600}
+            height={200}
+            className="w-full max-w-[600px] h-auto mb-6 mx-auto"
+          />
+          <p className="text-base leading-relaxed mb-8 max-w-2xl mx-auto">
+            誰が呼んだか情け嶋。車社会の八丈島で唯一、はしご酒ができるエリア。
+            それが「八丈島親不孝通り」。飲食店が軒を連ねるこのエリア、
+            島で唯一のカラオケボックスもここに。八丈島の夜はここにいくしかないのです。
+          </p>
+          <Link 
+            href="/access"
+            className="inline-block bg-[#FF6B4A] text-white px-8 py-4 rounded font-bold text-xl shadow-lg hover:transform hover:-translate-y-1 hover:shadow-xl transition-all duration-300"
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+            今すぐ行く
+          </Link>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
+      </section>
+
+      {/* 管理画面リンク */}
+      <div className="text-center my-8">
+        <Link 
+          href="/admin"
+          className="inline-block bg-blue-600 text-white px-6 py-3 rounded hover:bg-blue-700 transition-colors"
         >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+          管理画面へ
+        </Link>
+      </div>
+
+      {/* 店舗一覧 */}
+      <section className="max-w-7xl mx-auto px-4 pb-16">
+        <h2 className="text-3xl md:text-4xl font-black text-[#FF6B4A] text-center mb-8 pb-2 border-b-4 border-[#8B1874]">
+          夜の冒険、どこから始める？
+        </h2>
+
+        {loading ? (
+          <div className="text-center py-12">
+            <p className="text-xl">読み込み中...</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {stores.map(store => (
+              <Link href={`/stores/${store._id}`} key={store._id}>
+                <div className="bg-[#1A1A1A] rounded-lg overflow-hidden hover:transform hover:-translate-y-2 hover:shadow-2xl transition-all duration-300 cursor-pointer border border-[#2A2A2A] hover:border-[#FF6B4A]">
+                  {store.exteriorImage && (
+                    <div className="h-48 overflow-hidden bg-[#0A0A0A]">
+                      <img 
+                        src={store.exteriorImage.replace('/images/', '/')} 
+                        alt={store.name}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  )}
+                  <div className="p-6">
+                    <span className="inline-block bg-[#FF6B4A] text-white px-3 py-1 rounded text-sm font-bold mb-2">
+                      {store.category}
+                    </span>
+                    <h3 className="text-xl font-black mb-2">{store.name}</h3>
+                    <p className="text-gray-400 text-sm mb-4 line-clamp-3">{store.description}</p>
+                    <div className="flex justify-between items-center text-sm text-gray-500">
+                      <span>営業: {store.openingHours}</span>
+                      <span className={`px-2 py-1 rounded font-bold ${
+                        store.isOpen 
+                          ? 'bg-green-500/20 text-green-500' 
+                          : 'bg-red-500/20 text-red-500'
+                      }`}>
+                        {store.isOpen ? '営業中' : '休業中'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        )}
+      </section>
     </div>
   );
 }
