@@ -37,6 +37,29 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-[#0A0A0A] text-white">
+      {/* ヘッダー */}
+      <header className="bg-[#1A1A1A] border-b border-[#2A2A2A] sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+          <Link href="/" className="flex items-center">
+            <Image 
+              src="/logo/親不孝通り_logo_yoko.svg" 
+              alt="八丈島親不孝通り" 
+              width={200}
+              height={60}
+              priority
+              className="h-10 w-auto"
+            />
+          </Link>
+          <nav className="flex items-center gap-6">
+            <Link href="/" className="text-white hover:text-[#FF6B4A] transition-colors font-medium">
+              店舗
+            </Link>
+            <Link href="/access" className="text-white hover:text-[#FF6B4A] transition-colors font-medium">
+              アクセス
+            </Link>
+          </nav>
+        </div>
+      </header>
       {/* ヒーローセクション */}
       <section className="relative h-[80vh] min-h-[500px] flex items-center justify-center mb-4 overflow-hidden">
         <div 
@@ -52,6 +75,7 @@ export default function Home() {
             alt="親には言えない夜が、ここにある" 
             width={600}
             height={200}
+            priority
             className="w-full max-w-[600px] h-auto mb-6 mx-auto"
           />
           <p className="text-base leading-relaxed mb-8 max-w-2xl mx-auto">
@@ -121,6 +145,53 @@ export default function Home() {
           </div>
         )}
       </section>
+
+      {/* フッター */}
+      <footer className="bg-[#1A1A1A] border-t border-[#2A2A2A] mt-16">
+        <div className="max-w-7xl mx-auto px-4 py-8">
+          <div className="grid md:grid-cols-3 gap-8">
+            <div>
+              <h3 className="text-[#FF6B4A] font-bold mb-4">八丈島親不孝通り</h3>
+              <p className="text-gray-400 text-sm">
+                誰が呼んだか情け嶋。<br />
+                八丈島の夜はここにいくしかないのです。
+              </p>
+            </div>
+            <div>
+              <h3 className="text-[#FF6B4A] font-bold mb-4">メニュー</h3>
+              <ul className="space-y-2">
+                <li>
+                  <Link href="/" className="text-gray-400 hover:text-white text-sm transition-colors">
+                    店舗一覧
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/access" className="text-gray-400 hover:text-white text-sm transition-colors">
+                    アクセス
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/admin" className="text-gray-400 hover:text-white text-sm transition-colors">
+                    管理画面
+                  </Link>
+                </li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="text-[#FF6B4A] font-bold mb-4">所在地</h3>
+              <p className="text-gray-400 text-sm">
+                〒100-1401<br />
+                東京都八丈島八丈町三根
+              </p>
+            </div>
+          </div>
+          <div className="border-t border-[#2A2A2A] mt-8 pt-8 text-center">
+            <p className="text-gray-500 text-sm">
+              &copy; 2024 八丈島親不孝通り. All rights reserved.
+            </p>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
