@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Footer from '@/components/Footer';
 
 export default function AccessPage() {
   return (
@@ -141,6 +142,8 @@ export default function AccessPage() {
           </p>
         </section>
       </main>
+      
+      <Footer />
     </div>
   );
 }

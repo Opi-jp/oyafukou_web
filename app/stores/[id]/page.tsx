@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Footer from '@/components/Footer';
 
 interface MenuItem {
   name: string;
@@ -381,6 +382,11 @@ export default function StorePage() {
           </div>
         )}
       </main>
+
+      {/* 電話ボタンのためのスペース */}
+      {store.phone && <div className="h-20" />}
+      
+      <Footer />
 
       {/* 電話ボタン（スティッキー） */}
       {store.phone && (
