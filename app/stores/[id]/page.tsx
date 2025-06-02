@@ -54,12 +54,15 @@ export default function StorePage() {
 
   useEffect(() => {
     const fetchStore = async (id: string) => {
+      console.log('Fetching store data for ID:', id);
       try {
         const response = await fetch(`/api/stores/${id}`);
+        console.log('API Response status:', response.status);
         if (!response.ok) {
           throw new Error('Store not found');
         }
         const data = await response.json();
+        console.log('Store data received:', data);
         setStore(data);
       } catch (error) {
         console.error('店舗データの取得に失敗しました:', error);
@@ -70,7 +73,10 @@ export default function StorePage() {
     };
 
     if (params.id) {
+      console.log('Params ID:', params.id);
       fetchStore(params.id as string);
+    } else {
+      console.log('No params ID found');
     }
   }, [params.id, router]);
 
