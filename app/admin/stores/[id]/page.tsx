@@ -263,6 +263,16 @@ export default function EditStore() {
                     className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                     placeholder="/images/top/store-name.jpg"
                   />
+                  {store.topImage && (
+                    <div className="mt-2 w-32 h-32 overflow-hidden rounded">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img 
+                        src={store.topImage} 
+                        alt="トップ画像プレビュー"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  )}
                 </div>
                 <div>
                   <label className="block text-sm font-medium mb-1">外観画像URL</label>
@@ -274,6 +284,16 @@ export default function EditStore() {
                     className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                     placeholder="/exterior/store-name.jpg"
                   />
+                  {store.exteriorImage && (
+                    <div className="mt-2 w-32 h-32 overflow-hidden rounded">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img 
+                        src={store.exteriorImage} 
+                        alt="外観画像プレビュー"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  )}
                 </div>
                 <div>
                   <label className="block text-sm font-medium mb-1">その他の画像URL（カンマ区切り）</label>

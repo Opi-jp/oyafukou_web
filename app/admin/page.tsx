@@ -249,7 +249,25 @@ export default function Admin() {
                 <tbody>
                   {stores.map(store => (
                     <tr key={store._id} className="border-b">
-                      <td className="px-4 py-2">{store.name}</td>
+                      <td className="px-4 py-2">
+                        <div className="flex items-center">
+                          <div className="w-12 h-12 mr-3 overflow-hidden rounded">
+                            {store.exteriorImage ? (
+                              /* eslint-disable-next-line @next/next/no-img-element */
+                              <img 
+                                src={store.exteriorImage} 
+                                alt={store.name}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center bg-gray-300">
+                                <span className="text-xs font-bold text-gray-500">NO</span>
+                              </div>
+                            )}
+                          </div>
+                          {store.name}
+                        </div>
+                      </td>
                       <td className="px-4 py-2">{store.category}</td>
                       <td className="px-4 py-2">{store.openingHours}</td>
                       <td className="px-4 py-2">{store.closedDays.join(', ') || 'なし'}</td>

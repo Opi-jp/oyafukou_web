@@ -84,16 +84,20 @@ export default function Home() {
             {stores.map(store => (
               <Link href={`/stores/${store._id}`} key={store._id}>
                 <div className="bg-[#1A1A1A] rounded-lg overflow-hidden hover:transform hover:-translate-y-2 hover:shadow-2xl transition-all duration-300 cursor-pointer border border-[#2A2A2A] hover:border-[#FF6B4A]">
-                  {store.exteriorImage && (
-                    <div className="h-48 overflow-hidden bg-[#0A0A0A]">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <div className="h-48 overflow-hidden bg-[#0A0A0A]">
+                    {store.exteriorImage ? (
+                      /* eslint-disable-next-line @next/next/no-img-element */
                       <img 
                         src={store.exteriorImage.replace('/images/', '/')} 
                         alt={store.name}
                         className="w-full h-full object-cover"
                       />
-                    </div>
-                  )}
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-[#2A2A2A]">
+                        <span className="text-2xl font-bold text-gray-500">NO IMAGE</span>
+                      </div>
+                    )}
+                  </div>
                   <div className="p-6">
                     <span className="inline-block bg-[#FF6B4A] text-white px-3 py-1 rounded text-sm font-bold mb-2">
                       {store.category}

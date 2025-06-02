@@ -13,6 +13,12 @@ interface MenuItem {
   isRecommended?: boolean;
 }
 
+interface CategoryMenuItem {
+  name: string;
+  price: number;
+  category: string;
+}
+
 interface Store {
   _id: string;
   name: string;
@@ -23,6 +29,11 @@ interface Store {
   phone: string;
   address: string;
   menuHighlights: MenuItem[];
+  regularMenu: CategoryMenuItem[];
+  drinkMenu: CategoryMenuItem[];
+  managerName?: string;
+  managerComment?: string;
+  topImage?: string;
   exteriorImage?: string;
   images: string[];
   isOpen: boolean;
@@ -57,6 +68,17 @@ export default function StorePage() {
     }
   };
 
+  // メニューをカテゴリ別にグループ化
+  const groupByCategory = (items: CategoryMenuItem[]) => {
+    return items.reduce((acc, item) => {
+      if (!acc[item.category]) {
+        acc[item.category] = [];
+      }
+      acc[item.category].push(item);
+      return acc;
+    }, {} as Record<string, CategoryMenuItem[]>);
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-[#0A0A0A] text-white flex items-center justify-center">
@@ -68,6 +90,9 @@ export default function StorePage() {
   if (!store) {
     return null;
   }
+
+  const groupedMenu = groupByCategory(store.regularMenu || []);
+  const groupedDrinks = groupByCategory(store.drinkMenu || []);
 
   return (
     <div className="min-h-screen bg-[#0A0A0A] text-white">
@@ -101,17 +126,21 @@ export default function StorePage() {
           <p className="text-lg text-gray-300 mb-6">{store.description}</p>
 
           <div className="grid md:grid-cols-2 gap-8">
-            {/* 外観画像 */}
-            {store.exteriorImage && (
-              <div className="h-64 md:h-96 overflow-hidden rounded-lg bg-[#1A1A1A]">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
+            {/* 画像 */}
+            <div className="h-64 md:h-96 overflow-hidden rounded-lg bg-[#1A1A1A]">
+              {store.topImage || store.exteriorImage ? (
+                /* eslint-disable-next-line @next/next/no-img-element */
                 <img 
-                  src={store.exteriorImage.replace('/images/', '/')} 
+                  src={(store.topImage || store.exteriorImage || '').replace('/images/', '/')} 
                   alt={store.name}
                   className="w-full h-full object-cover"
                 />
-              </div>
-            )}
+              ) : (
+                <div className="w-full h-full flex items-center justify-center bg-[#2A2A2A]">
+                  <span className="text-4xl font-bold text-gray-500">NO IMAGE</span>
+                </div>
+              )}
+            </div>
 
             {/* 基本情報 */}
             <div className="space-y-4">
@@ -138,61 +167,178 @@ export default function StorePage() {
                   </div>
                 </dl>
               </div>
+
+              {/* 店長コメント */}
+              {(store.managerName || store.managerComment) && (
+                <div className="bg-[#1A1A1A] p-6 rounded-lg border border-[#2A2A2A]">
+                  <h3 className="text-lg font-bold mb-3 text-[#FFD700]">店長より</h3>
+                  {store.managerName && (
+                    <p className="text-sm text-gray-400 mb-2">店長: {store.managerName}</p>
+                  )}
+                  {store.managerComment && (
+                    <p className="text-sm leading-relaxed">{store.managerComment}</p>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </div>
 
-        {/* メニューハイライト */}
-        {store.menuHighlights && store.menuHighlights.length > 0 && (
-          <div className="mb-8">
-            <h2 className="text-2xl font-bold mb-6 text-[#FF6B4A]">おすすめメニュー</h2>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {store.menuHighlights.map((item, index) => (
-                <div 
-                  key={index}
-                  className="bg-[#1A1A1A] rounded-lg overflow-hidden border border-[#2A2A2A] hover:border-[#FF6B4A] transition-colors"
-                >
-                  {item.image && (
-                    <div className="h-48 overflow-hidden bg-[#0A0A0A]">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img 
-                        src={item.image} 
-                        alt={item.name}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                  )}
-                  <div className="p-4">
-                    <div className="flex items-start justify-between mb-2">
-                      <h3 className="font-bold text-lg">{item.name}</h3>
-                      {item.isRecommended && (
-                        <span className="bg-[#FFD700] text-black px-2 py-1 rounded text-xs font-bold">
-                          おすすめ
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-[#FF6B4A] font-bold text-xl mb-2">¥{item.price.toLocaleString()}</p>
-                    <p className="text-gray-400 text-sm">{item.description}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
+        {/* メニュータブ */}
+        <div className="mb-8">
+          {/* タブナビゲーション */}
+          <div className="flex border-b border-[#2A2A2A] mb-6">
+            <button
+              onClick={() => setActiveTab('recommend')}
+              className={`px-6 py-3 font-bold text-lg transition-colors ${
+                activeTab === 'recommend'
+                  ? 'text-[#FF6B4A] border-b-2 border-[#FF6B4A]'
+                  : 'text-gray-400 hover:text-white'
+              }`}
+            >
+              おすすめ
+            </button>
+            <button
+              onClick={() => setActiveTab('menu')}
+              className={`px-6 py-3 font-bold text-lg transition-colors ${
+                activeTab === 'menu'
+                  ? 'text-[#FF6B4A] border-b-2 border-[#FF6B4A]'
+                  : 'text-gray-400 hover:text-white'
+              }`}
+            >
+              メニュー
+            </button>
+            <button
+              onClick={() => setActiveTab('drink')}
+              className={`px-6 py-3 font-bold text-lg transition-colors ${
+                activeTab === 'drink'
+                  ? 'text-[#FF6B4A] border-b-2 border-[#FF6B4A]'
+                  : 'text-gray-400 hover:text-white'
+              }`}
+            >
+              ドリンク
+            </button>
           </div>
-        )}
 
-        {/* その他の画像 */}
+          {/* おすすめタブ */}
+          {activeTab === 'recommend' && (
+            <div>
+              {store.menuHighlights && store.menuHighlights.length > 0 ? (
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {store.menuHighlights.map((item, index) => (
+                    <div 
+                      key={index}
+                      className="bg-[#1A1A1A] rounded-lg overflow-hidden border border-[#2A2A2A] hover:border-[#FF6B4A] transition-colors"
+                    >
+                      <div className="h-48 overflow-hidden bg-[#0A0A0A]">
+                        {item.image ? (
+                          /* eslint-disable-next-line @next/next/no-img-element */
+                          <img 
+                            src={item.image} 
+                            alt={item.name}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center bg-[#2A2A2A]">
+                            <span className="text-2xl font-bold text-gray-500">NO IMAGE</span>
+                          </div>
+                        )}
+                      </div>
+                      <div className="p-4">
+                        <div className="flex items-start justify-between mb-2">
+                          <h3 className="font-bold text-lg">{item.name}</h3>
+                          {item.isRecommended && (
+                            <span className="bg-[#FFD700] text-black px-2 py-1 rounded text-xs font-bold">
+                              おすすめ
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-[#FF6B4A] font-bold text-xl mb-2">¥{item.price.toLocaleString()}</p>
+                        <p className="text-gray-400 text-sm">{item.description}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-gray-400 text-center py-8">おすすめメニューは現在準備中です</p>
+              )}
+            </div>
+          )}
+
+          {/* メニュータブ */}
+          {activeTab === 'menu' && (
+            <div>
+              {Object.keys(groupedMenu).length > 0 ? (
+                <div className="space-y-8">
+                  {Object.entries(groupedMenu).map(([category, items]) => (
+                    <div key={category}>
+                      <h3 className="text-xl font-bold mb-4 text-[#FFD700]">{category}</h3>
+                      <div className="bg-[#1A1A1A] rounded-lg p-4 border border-[#2A2A2A]">
+                        <div className="space-y-3">
+                          {items.map((item, index) => (
+                            <div key={index} className="flex justify-between items-center py-2 border-b border-[#2A2A2A] last:border-0">
+                              <span className="text-lg">{item.name}</span>
+                              <span className="text-[#FF6B4A] font-bold">¥{item.price.toLocaleString()}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-gray-400 text-center py-8">メニューは現在準備中です</p>
+              )}
+            </div>
+          )}
+
+          {/* ドリンクタブ */}
+          {activeTab === 'drink' && (
+            <div>
+              {Object.keys(groupedDrinks).length > 0 ? (
+                <div className="space-y-8">
+                  {Object.entries(groupedDrinks).map(([category, items]) => (
+                    <div key={category}>
+                      <h3 className="text-xl font-bold mb-4 text-[#FFD700]">{category}</h3>
+                      <div className="bg-[#1A1A1A] rounded-lg p-4 border border-[#2A2A2A]">
+                        <div className="space-y-3">
+                          {items.map((item, index) => (
+                            <div key={index} className="flex justify-between items-center py-2 border-b border-[#2A2A2A] last:border-0">
+                              <span className="text-lg">{item.name}</span>
+                              <span className="text-[#FF6B4A] font-bold">¥{item.price.toLocaleString()}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-gray-400 text-center py-8">ドリンクメニューは現在準備中です</p>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* ギャラリー */}
         {store.images && store.images.length > 0 && (
           <div>
             <h2 className="text-2xl font-bold mb-6 text-[#FF6B4A]">ギャラリー</h2>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
               {store.images.map((image, index) => (
                 <div key={index} className="h-48 overflow-hidden rounded-lg bg-[#1A1A1A]">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img 
-                    src={image} 
-                    alt={`${store.name} ${index + 1}`}
-                    className="w-full h-full object-cover hover:scale-105 transition-transform"
-                  />
+                  {image ? (
+                    /* eslint-disable-next-line @next/next/no-img-element */
+                    <img 
+                      src={image} 
+                      alt={`${store.name} ${index + 1}`}
+                      className="w-full h-full object-cover hover:scale-105 transition-transform"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-[#2A2A2A]">
+                      <span className="text-2xl font-bold text-gray-500">NO IMAGE</span>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
