@@ -328,33 +328,6 @@ export default function StorePage() {
           )}
         </div>
 
-        {/* 基本情報 */}
-        <div className="mb-8">
-          <div className="bg-[#1A1A1A] p-6 rounded-lg border border-[#2A2A2A]">
-            <h2 className="text-xl font-bold mb-4 text-[#FF6B4A]">基本情報</h2>
-            <dl className="space-y-3">
-              <div>
-                <dt className="text-gray-400 text-sm">営業時間</dt>
-                <dd className="text-lg">{store.openingHours}</dd>
-              </div>
-              <div>
-                <dt className="text-gray-400 text-sm">定休日</dt>
-                <dd className="text-lg">{store.closedDays.join('、') || 'なし'}</dd>
-              </div>
-              {store.phone && (
-                <div>
-                  <dt className="text-gray-400 text-sm">電話番号</dt>
-                  <dd className="text-lg">{store.phone}</dd>
-                </div>
-              )}
-              <div>
-                <dt className="text-gray-400 text-sm">住所</dt>
-                <dd className="text-lg">{store.address}</dd>
-              </div>
-            </dl>
-          </div>
-        </div>
-
         {/* 詳細ページその2画像 */}
         {store.detailImage2 && (
           <div className="mb-8">
@@ -393,16 +366,34 @@ export default function StorePage() {
             </div>
           </div>
         )}
-      </main>
 
-      {/* フッターとボタンのための余白 */}
-      {store.phone ? (
-        // 電話ボタンがある場合は大きめの余白
-        <div className="h-40" />
-      ) : (
-        // 電話ボタンがない場合は通常の余白
-        <div className="h-20" />
-      )}
+        {/* 基本情報（最後に配置） */}
+        <div className={store.phone ? "mb-40" : "mb-20"}>
+          <div className="bg-[#1A1A1A] p-6 rounded-lg border border-[#2A2A2A]">
+            <h2 className="text-xl font-bold mb-4 text-[#FF6B4A]">基本情報</h2>
+            <dl className="space-y-3">
+              <div>
+                <dt className="text-gray-400 text-sm">営業時間</dt>
+                <dd className="text-lg">{store.openingHours}</dd>
+              </div>
+              <div>
+                <dt className="text-gray-400 text-sm">定休日</dt>
+                <dd className="text-lg">{store.closedDays.join('、') || 'なし'}</dd>
+              </div>
+              {store.phone && (
+                <div>
+                  <dt className="text-gray-400 text-sm">電話番号</dt>
+                  <dd className="text-lg">{store.phone}</dd>
+                </div>
+              )}
+              <div>
+                <dt className="text-gray-400 text-sm">住所</dt>
+                <dd className="text-lg">{store.address}</dd>
+              </div>
+            </dl>
+          </div>
+        </div>
+      </main>
       
       <Footer />
 
