@@ -28,11 +28,14 @@ interface Store {
   phone: string;
   address: string;
   managerName?: string;
+  managerPhoto?: string;
   managerComment?: string;
   topImage?: string;
   exteriorImage?: string;
   images: string[];
   isOpen: boolean;
+  temporaryClosed?: boolean;
+  temporaryClosedReason?: string;
   menuHighlights: MenuItem[];
   regularMenu: CategoryMenuItem[];
   drinkMenu: CategoryMenuItem[];
@@ -216,7 +219,7 @@ export default function EditStore() {
                     className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
-                <div className="flex items-center">
+                <div className="flex items-center gap-6">
                   <label className="flex items-center">
                     <input
                       type="checkbox"
@@ -227,7 +230,30 @@ export default function EditStore() {
                     />
                     <span className="text-sm">営業中</span>
                   </label>
+                  <label className="flex items-center">
+                    <input
+                      type="checkbox"
+                      name="temporaryClosed"
+                      checked={store.temporaryClosed || false}
+                      onChange={handleInputChange}
+                      className="mr-2"
+                    />
+                    <span className="text-sm text-red-600 font-bold">臨時休業</span>
+                  </label>
                 </div>
+                {store.temporaryClosed && (
+                  <div>
+                    <label className="block text-sm font-medium mb-1">臨時休業理由</label>
+                    <input
+                      type="text"
+                      name="temporaryClosedReason"
+                      value={store.temporaryClosedReason || ''}
+                      onChange={handleInputChange}
+                      className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="例：店内改装のため"
+                    />
+                  </div>
+                )}
               </div>
             </div>
           )}
@@ -246,6 +272,27 @@ export default function EditStore() {
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">店長写真URL</label>
+                  <input
+                    type="text"
+                    name="managerPhoto"
+                    value={store.managerPhoto || ''}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="/images/manager/store-name.jpg"
+                  />
+                  {store.managerPhoto && (
+                    <div className="mt-2 w-32 h-32 rounded-full overflow-hidden border-4 border-blue-500">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img 
+                        src={store.managerPhoto} 
+                        alt="店長写真プレビュー"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  )}
                 </div>
                 <div>
                   <label className="block text-sm font-medium mb-1">店長コメント</label>
@@ -328,7 +375,13 @@ export default function EditStore() {
           {activeTab === 'menu' && (
             <div className="bg-white rounded-lg shadow-md p-6">
               <h2 className="text-xl font-bold mb-4">メニュー管理</h2>
-              <p className="text-gray-600">※ メニュー管理機能は現在開発中です</p>
+              <p className="text-gray-600 mb-4">メニューの詳細編集は専用ページで行います。</p>
+              <Link 
+                href={`/admin/stores/${store._id}/menus`}
+                className="inline-block bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700"
+              >
+                メニュー編集ページへ
+              </Link>
             </div>
           )}
 

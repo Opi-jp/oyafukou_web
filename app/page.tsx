@@ -39,21 +39,24 @@ export default function Home() {
     <div className="min-h-screen bg-[#0A0A0A] text-white">
       {/* ヘッダー */}
       <header className="bg-[#1A1A1A] border-b border-[#2A2A2A] sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-          <Link href="/" className="flex items-center">
-            <Image 
-              src="/logo/親不孝通り_logo_yoko.svg" 
-              alt="八丈島親不孝通り" 
-              width={200}
-              height={60}
-              priority
-              className="h-10 w-auto"
-            />
-          </Link>
-          <nav className="flex items-center gap-6">
+        <div className="max-w-7xl mx-auto px-4 py-4">
+          <div className="flex justify-center mb-2">
+            <Link href="/" className="inline-block">
+              <Image 
+                src="/logo/親不孝通り_logo_yoko.svg" 
+                alt="八丈島親不孝通り" 
+                width={240}
+                height={60}
+                priority
+                className="h-12 w-auto"
+              />
+            </Link>
+          </div>
+          <nav className="flex items-center justify-center gap-2 text-sm">
             <Link href="/" className="text-white hover:text-[#FF6B4A] transition-colors font-medium">
               ホーム
             </Link>
+            <span className="text-gray-500">|</span>
             <Link href="/access" className="text-white hover:text-[#FF6B4A] transition-colors font-medium">
               アクセス
             </Link>
@@ -78,7 +81,7 @@ export default function Home() {
             priority
             className="w-full max-w-[600px] h-auto mb-6 mx-auto"
           />
-          <p className="text-base leading-relaxed mb-8 max-w-2xl mx-auto">
+          <p className="text-base leading-relaxed mb-8 max-w-2xl mx-auto text-left">
             誰が呼んだか情け嶋。車社会の八丈島で唯一、はしご酒ができるエリア。
             それが「八丈島親不孝通り」。飲食店が軒を連ねるこのエリア、
             島で唯一のカラオケボックスもここに。八丈島の夜はここにいくしかないのです。
@@ -95,8 +98,8 @@ export default function Home() {
 
       {/* 店舗一覧 */}
       <section className="max-w-7xl mx-auto px-4 pb-16">
-        <h2 className="text-3xl md:text-4xl font-black text-[#FF6B4A] text-center mb-8 pb-2 border-b-4 border-[#8B1874]">
-          夜の冒険、どこから始める？
+        <h2 className="text-2xl md:text-4xl font-black text-[#FF6B4A] text-center mb-8 pb-2 border-b-4 border-[#8B1874]">
+          夜の冒険、<br className="md:hidden" />どこから始める？
         </h2>
 
         {loading ? (

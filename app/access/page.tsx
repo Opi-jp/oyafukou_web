@@ -46,9 +46,16 @@ export default function AccessPage() {
             <h2 className="text-2xl font-bold mb-4 text-[#FF6B4A]">空港からのアクセス</h2>
             <ul className="space-y-3">
               <li className="flex items-start">
+                <span className="text-[#FFD700] mr-2">🚕</span>
+                <div>
+                  <p className="font-bold">タクシー（推奨）</p>
+                  <p className="text-gray-400">八丈島空港から約2,000円（約10分）</p>
+                </div>
+              </li>
+              <li className="flex items-start">
                 <span className="text-[#FFD700] mr-2">🚗</span>
                 <div>
-                  <p className="font-bold">レンタカー（推奨）</p>
+                  <p className="font-bold">レンタカー</p>
                   <p className="text-gray-400">八丈島空港から車で約10分</p>
                 </div>
               </li>
@@ -57,13 +64,6 @@ export default function AccessPage() {
                 <div>
                   <p className="font-bold">路線バス</p>
                   <p className="text-gray-400">空港から「神湊」行きバスで「大賀郷園地前」下車、徒歩5分</p>
-                </div>
-              </li>
-              <li className="flex items-start">
-                <span className="text-[#FFD700] mr-2">🚕</span>
-                <div>
-                  <p className="font-bold">タクシー</p>
-                  <p className="text-gray-400">八丈島空港から約2,000円</p>
                 </div>
               </li>
             </ul>
@@ -90,9 +90,37 @@ export default function AccessPage() {
           </div>
 
           <div className="bg-[#1A1A1A] p-6 rounded-lg border border-[#2A2A2A]">
+            <h2 className="text-2xl font-bold mb-4 text-[#FF6B4A]">タクシー会社情報</h2>
+            <div className="space-y-4">
+              <div className="border-l-4 border-[#FFD700] pl-4">
+                <h3 className="font-bold text-lg mb-1">八丈島タクシー</h3>
+                <p className="text-gray-400 mb-2">電話：04996-2-1111</p>
+                <a href="tel:04996-2-1111" className="inline-block bg-[#FF6B4A] hover:bg-[#FF8A6A] text-white px-4 py-2 rounded font-bold transition-colors">
+                  📞 タクシーを呼ぶ
+                </a>
+              </div>
+              <div className="border-l-4 border-[#FFD700] pl-4">
+                <h3 className="font-bold text-lg mb-1">やすらタクシー</h3>
+                <p className="text-gray-400 mb-2">電話：04996-2-2222</p>
+                <a href="tel:04996-2-2222" className="inline-block bg-[#FF6B4A] hover:bg-[#FF8A6A] text-white px-4 py-2 rounded font-bold transition-colors">
+                  📞 タクシーを呼ぶ
+                </a>
+              </div>
+              <div className="border-l-4 border-[#FFD700] pl-4">
+                <h3 className="font-bold text-lg mb-1">かわいタクシー</h3>
+                <p className="text-gray-400 mb-2">電話：04996-2-3333</p>
+                <a href="tel:04996-2-3333" className="inline-block bg-[#FF6B4A] hover:bg-[#FF8A6A] text-white px-4 py-2 rounded font-bold transition-colors">
+                  📞 タクシーを呼ぶ
+                </a>
+              </div>
+            </div>
+            <p className="text-sm text-gray-500 mt-4">※上記は例です。実際のタクシー会社情報を確認してください。</p>
+          </div>
+
+          <div className="bg-[#1A1A1A] p-6 rounded-lg border border-[#2A2A2A]">
             <h2 className="text-2xl font-bold mb-4 text-[#FF6B4A]">駐車場情報</h2>
             <p className="mb-2">各店舗に駐車場あり（無料）</p>
-            <p className="text-gray-400">※飲酒運転は絶対にやめましょう。代行運転サービスもご利用いただけます。</p>
+            <p className="text-gray-400">※飲酒運転は絶対にやめましょう。</p>
           </div>
 
           <div className="bg-[#FFD700]/10 p-6 rounded-lg border border-[#FFD700]/30">

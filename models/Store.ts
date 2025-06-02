@@ -92,6 +92,10 @@ const StoreSchema = new mongoose.Schema({
     type: String,
     trim: true
   },
+  managerPhoto: {
+    type: String,
+    trim: true
+  },
   managerComment: {
     type: String,
     trim: true,
@@ -113,6 +117,15 @@ const StoreSchema = new mongoose.Schema({
   isOpen: {
     type: Boolean,
     default: true
+  },
+  // 臨時休業
+  temporaryClosed: {
+    type: Boolean,
+    default: false
+  },
+  temporaryClosedReason: {
+    type: String,
+    trim: true
   },
   createdAt: {
     type: Date,

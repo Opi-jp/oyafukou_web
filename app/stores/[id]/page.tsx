@@ -31,11 +31,14 @@ interface Store {
   regularMenu: CategoryMenuItem[];
   drinkMenu: CategoryMenuItem[];
   managerName?: string;
+  managerPhoto?: string;
   managerComment?: string;
   topImage?: string;
   exteriorImage?: string;
   images: string[];
   isOpen: boolean;
+  temporaryClosed?: boolean;
+  temporaryClosedReason?: string;
 }
 
 export default function StorePage() {
@@ -103,11 +106,13 @@ export default function StorePage() {
             ← 一覧に戻る
           </Link>
           <div className={`px-3 py-1 rounded text-sm font-bold ${
-            store.isOpen 
-              ? 'bg-green-500/20 text-green-500' 
-              : 'bg-red-500/20 text-red-500'
+            store.temporaryClosed
+              ? 'bg-orange-500/20 text-orange-500'
+              : store.isOpen 
+                ? 'bg-green-500/20 text-green-500' 
+                : 'bg-red-500/20 text-red-500'
           }`}>
-            {store.isOpen ? '営業中' : '休業中'}
+            {store.temporaryClosed ? '臨時休業' : store.isOpen ? '営業中' : '休業中'}
           </div>
         </div>
       </header>
@@ -124,6 +129,16 @@ export default function StorePage() {
           </div>
           
           <p className="text-lg text-gray-300 mb-6">{store.description}</p>
+
+          {/* 臨時休業のお知らせ */}
+          {store.temporaryClosed && (
+            <div className="bg-orange-500/20 border border-orange-500/50 rounded-lg p-4 mb-6">
+              <p className="text-orange-500 font-bold mb-1">⚠️ 臨時休業中</p>
+              {store.temporaryClosedReason && (
+                <p className="text-orange-300 text-sm">理由：{store.temporaryClosedReason}</p>
+              )}
+            </div>
+          )}
 
           <div className="grid md:grid-cols-2 gap-8">
             {/* 画像 */}
@@ -144,6 +159,40 @@ export default function StorePage() {
 
             {/* 基本情報 */}
             <div className="space-y-4">
+              {/* 店長情報 */}
+              {(store.managerName || store.managerComment || store.managerPhoto) && (
+                <div className="bg-[#1A1A1A] p-6 rounded-lg border border-[#2A2A2A]">
+                  <h3 className="text-lg font-bold mb-4 text-[#FFD700]">店長より</h3>
+                  <div className="flex flex-col items-center">
+                    {store.managerPhoto ? (
+                      <div className="w-32 h-32 rounded-full overflow-hidden mb-4 border-4 border-[#FFD700]">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img 
+                          src={store.managerPhoto} 
+                          alt={store.managerName || '店長'}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    ) : (
+                      <div className="w-32 h-32 rounded-full bg-[#2A2A2A] flex items-center justify-center mb-4 border-4 border-[#FFD700]">
+                        <span className="text-gray-500 text-sm font-bold">NO IMAGE</span>
+                      </div>
+                    )}
+                    {store.managerName && (
+                      <p className="text-lg font-bold mb-4">{store.managerName}</p>
+                    )}
+                    {store.managerComment && (
+                      <div className="relative w-full max-w-md">
+                        <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-[10px] border-l-transparent border-r-[10px] border-r-transparent border-b-[15px] border-b-[#FFD700]"></div>
+                        <div className="bg-[#FFD700] text-black p-4 rounded-lg">
+                          <p className="text-sm leading-relaxed">{store.managerComment}</p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
               <div className="bg-[#1A1A1A] p-6 rounded-lg border border-[#2A2A2A]">
                 <h2 className="text-xl font-bold mb-4 text-[#FF6B4A]">基本情報</h2>
                 <dl className="space-y-3">
@@ -167,19 +216,6 @@ export default function StorePage() {
                   </div>
                 </dl>
               </div>
-
-              {/* 店長コメント */}
-              {(store.managerName || store.managerComment) && (
-                <div className="bg-[#1A1A1A] p-6 rounded-lg border border-[#2A2A2A]">
-                  <h3 className="text-lg font-bold mb-3 text-[#FFD700]">店長より</h3>
-                  {store.managerName && (
-                    <p className="text-sm text-gray-400 mb-2">店長: {store.managerName}</p>
-                  )}
-                  {store.managerComment && (
-                    <p className="text-sm leading-relaxed">{store.managerComment}</p>
-                  )}
-                </div>
-              )}
             </div>
           </div>
         </div>
@@ -345,6 +381,18 @@ export default function StorePage() {
           </div>
         )}
       </main>
+
+      {/* 電話ボタン（スティッキー） */}
+      {store.phone && (
+        <div className="fixed bottom-0 left-0 right-0 bg-[#1A1A1A] border-t border-[#2A2A2A] p-4 z-50">
+          <a 
+            href={`tel:${store.phone}`}
+            className="block w-full max-w-md mx-auto bg-[#FF6B4A] hover:bg-[#FF8A6A] text-white text-center py-4 rounded-lg font-bold text-lg transition-colors"
+          >
+            📞 電話する
+          </a>
+        </div>
+      )}
     </div>
   );
 }

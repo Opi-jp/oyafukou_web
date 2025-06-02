@@ -1,12 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
 import Store from '@/models/Store';
+import { isStoreOpenToday } from '@/lib/utils';
 
 export async function GET() {
   try {
     await connectDB();
     const stores = await Store.find({});
-    return NextResponse.json(stores);
+    
+    // 各店舗の営業状態を曜日に基づいて更新
+    const storesWithStatus = stores.map(store => {
+      const storeObj = store.toObject();
+      storeObj.isOpen = isStoreOpenToday(storeObj.closedDays || [], storeObj.temporaryClosed);
+      return storeObj;
+    });
+    
+    return NextResponse.json(storesWithStatus);
   } catch (error) {
     console.error('Error fetching stores:', error);
     return NextResponse.json(
