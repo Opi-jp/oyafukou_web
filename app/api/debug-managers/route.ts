@@ -26,14 +26,14 @@ export async function GET() {
     // parent_site_admin をチェック
     const parentDb = client.db('parent_site_admin');
     results.parent_site_admin = {
-      managers: await parentDb.collection('managers').find({}).toArray(),
+      managers: await parentDb.collection('managers').find({}).toArray() as unknown as Manager[],
       stores: await parentDb.collection('stores').countDocuments()
     };
     
     // oyafukou_db をチェック
     const oyafukouDb = client.db('oyafukou_db');
     results.oyafukou_db = {
-      managers: await oyafukouDb.collection('managers').find({}).toArray(),
+      managers: await oyafukouDb.collection('managers').find({}).toArray() as unknown as Manager[],
       stores: await oyafukouDb.collection('stores').countDocuments()
     };
     
