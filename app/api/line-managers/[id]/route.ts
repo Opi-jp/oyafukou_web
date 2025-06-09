@@ -6,7 +6,9 @@ const uri = process.env.MONGODB_URI!;
 async function connectToDatabase(): Promise<Db> {
   const client = new MongoClient(uri);
   await client.connect();
-  return client.db('oyafukou_db');
+  // URIからデータベース名を抽出
+  const dbName = uri.split('/').pop()?.split('?')[0] || 'oyafukou_db';
+  return client.db(dbName);
 }
 
 // DELETE: マネージャーを削除
