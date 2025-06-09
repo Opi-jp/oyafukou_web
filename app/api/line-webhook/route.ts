@@ -17,12 +17,17 @@ async function connectToDatabase() {
 // LINEユーザーIDから店舗を特定
 async function getStoreByLineUserId(lineUserId: string) {
   const db = await connectToDatabase();
+  console.log('Searching for manager with lineUserId:', lineUserId);
+  
   const manager = await db.collection('managers').findOne({ lineUserId, isActive: true });
+  console.log('Found manager:', manager);
   
   if (!manager) return null;
   
   const { ObjectId } = await import('mongodb');
+  console.log('Searching for store with ID:', manager.storeId);
   const store = await db.collection('stores').findOne({ _id: new ObjectId(manager.storeId) });
+  console.log('Found store:', store?.name || 'Not found');
   return store;
 }
 
