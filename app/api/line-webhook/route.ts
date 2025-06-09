@@ -9,9 +9,15 @@ let client: line.messagingApi.MessagingApiClient;
 
 // MongoDB接続
 async function connectToDatabase() {
-  const client = new MongoClient(process.env.MONGODB_URI!);
+  const uri = process.env.MONGODB_URI!;
+  const client = new MongoClient(uri);
   await client.connect();
-  return client.db('oyafukou_db');
+  
+  // URIからデータベース名を抽出
+  const dbName = uri.split('/').pop()?.split('?')[0] || 'oyafukou_db';
+  console.log('Connecting to database:', dbName);
+  
+  return client.db(dbName);
 }
 
 // LINEユーザーIDから店舗を特定
