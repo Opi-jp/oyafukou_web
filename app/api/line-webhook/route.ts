@@ -6,20 +6,6 @@ import { put } from '@vercel/blob';
 // クライアントの初期化は実行時に行う
 let client: line.messagingApi.MessagingApiClient;
 
-
-// MongoDB接続
-async function connectToDatabase() {
-  const uri = process.env.MONGODB_URI!;
-  const client = new MongoClient(uri);
-  await client.connect();
-  
-  // URIからデータベース名を抽出
-  const dbName = uri.split('/').pop()?.split('?')[0] || 'oyafukou_db';
-  console.log('Connecting to database:', dbName);
-  
-  return client.db(dbName);
-}
-
 // LINEユーザーIDから店舗を特定
 async function getStoreByLineUserId(lineUserId: string) {
   const uri = process.env.MONGODB_URI!;
