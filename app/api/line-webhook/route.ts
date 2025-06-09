@@ -100,20 +100,21 @@ export async function POST(request: NextRequest) {
 
       // メッセージイベントの処理
       if (event.type === 'message') {
-        // 店舗を特定
-        const store = await getStoreByLineUserId(lineUserId);
-        
-        if (!store) {
-          // 未登録ユーザーへの返信
-          await client.replyMessage({
-            replyToken: event.replyToken,
-            messages: [{
-              type: 'text',
-              text: '申し訳ございません。あなたのLINEアカウントは登録されていません。\n管理者にお問い合わせください。'
-            }]
-          });
-          continue;
-        }
+        try {
+          // 店舗を特定
+          const store = await getStoreByLineUserId(lineUserId);
+          
+          if (!store) {
+            // 未登録ユーザーへの返信
+            await client.replyMessage({
+              replyToken: event.replyToken,
+              messages: [{
+                type: 'text',
+                text: '申し訳ございません。あなたのLINEアカウントは登録されていません。\n管理者にお問い合わせください。'
+              }]
+            });
+            continue;
+          }
 
       // テキストメッセージの処理
       if (event.message.type === 'text') {
@@ -213,6 +214,21 @@ export async function POST(request: NextRequest) {
           }]
         });
       }
+        } catch (messageError) {
+          console.error('Message processing error:', messageError);
+          // エラー時でもレスポンスを返す
+          try {
+            await client.replyMessage({
+              replyToken: event.replyToken,
+              messages: [{
+                type: 'text',
+                text: '⚠️ エラーが発生しました。しばらくしてからもう一度お試しください。'
+              }]
+            });
+          } catch (replyError) {
+            console.error('Reply error:', replyError);
+          }
+        }
       }
     }
 

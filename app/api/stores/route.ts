@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
 import Store from '@/models/Store';
 import { isStoreOpenToday } from '@/lib/utils';
+import { verifyToken, getTokenFromRequest } from '@/lib/auth';
 
 export async function GET() {
   try {
@@ -27,6 +28,23 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
+    // 認証チェック
+    const token = getTokenFromRequest(request);
+    if (!token) {
+      return NextResponse.json(
+        { error: '認証が必要です' },
+        { status: 401 }
+      );
+    }
+
+    const user = verifyToken(token);
+    if (!user) {
+      return NextResponse.json(
+        { error: '無効なトークンです' },
+        { status: 401 }
+      );
+    }
+
     await connectDB();
     const body = await request.json();
     const newStore = new Store(body);
