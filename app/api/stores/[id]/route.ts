@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
 import Store from '@/models/Store';
 import { isStoreOpenToday } from '@/lib/utils';
+import { sendSlackNotification, createStoreUpdateMessage } from '@/lib/slack';
 
 export async function GET(
   request: NextRequest,
@@ -41,6 +42,10 @@ export async function PUT(
     await connectDB();
     const { id } = await params;
     const body = await request.json();
+    
+    // 更新前の店舗情報を取得（変更内容の比較用）
+    const oldStore = await Store.findById(id);
+    
     const updatedStore = await Store.findByIdAndUpdate(
       id,
       body,
@@ -52,6 +57,30 @@ export async function PUT(
         { error: '店舗が見つかりません' },
         { status: 404 }
       );
+    }
+    
+    // Slack通知を送信
+    if (oldStore) {
+      const changes: string[] = [];
+      
+      // 主要な変更をチェック
+      if (oldStore.name !== updatedStore.name) changes.push('店舗名');
+      if (oldStore.description !== updatedStore.description) changes.push('説明');
+      if (oldStore.openingHours !== updatedStore.openingHours) changes.push('営業時間');
+      if (oldStore.managerComment !== updatedStore.managerComment) changes.push('店長コメント');
+      if (oldStore.temporaryClosed !== updatedStore.temporaryClosed) {
+        changes.push(updatedStore.temporaryClosed ? '臨時休業設定' : '臨時休業解除');
+      }
+      
+      if (changes.length > 0) {
+        const slackMessage = createStoreUpdateMessage(
+          updatedStore.name,
+          'update',
+          'Web管理画面',
+          changes
+        );
+        await sendSlackNotification(slackMessage);
+      }
     }
     
     return NextResponse.json(updatedStore);

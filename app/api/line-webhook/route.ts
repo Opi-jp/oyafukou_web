@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import * as line from '@line/bot-sdk';
 import { MongoClient } from 'mongodb';
 import { put } from '@vercel/blob';
+import { sendSlackNotification, createLineUpdateMessage } from '@/lib/slack';
 
 // クライアントの初期化は実行時に行う
 let client: line.messagingApi.MessagingApiClient;
@@ -134,6 +135,15 @@ export async function POST(request: NextRequest) {
               }
             ]
           });
+          
+          // Slack通知
+          const slackMessage = createLineUpdateMessage(
+            store.name,
+            store.managerName || 'マネージャー',
+            'comment',
+            messageText
+          );
+          await sendSlackNotification(slackMessage);
         } else {
           // エラーメッセージ
           await client.replyMessage({
@@ -196,6 +206,14 @@ export async function POST(request: NextRequest) {
               text: `✅ ${store.name}のマネージャー写真を更新しました！`
             }]
           });
+          
+          // Slack通知
+          const slackMessage = createLineUpdateMessage(
+            store.name,
+            store.managerName || 'マネージャー',
+            'photo'
+          );
+          await sendSlackNotification(slackMessage);
         } catch (error) {
           console.error('画像アップロードエラー:', error);
           await client.replyMessage({
