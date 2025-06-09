@@ -113,24 +113,24 @@ export default function EditStore() {
   return (
     <div className="min-h-screen bg-gray-100 text-gray-900">
       <header className="bg-gray-900 text-white p-4">
-        <div className="max-w-7xl mx-auto flex justify-between items-center">
-          <h1 className="text-2xl font-bold">店舗編集: {store.name}</h1>
-          <Link href="/admin" className="text-blue-400 hover:underline">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+          <h1 className="text-xl sm:text-2xl font-bold">店舗編集: {store.name}</h1>
+          <Link href="/admin" className="text-blue-400 hover:underline text-sm sm:text-base">
             ← 管理画面に戻る
           </Link>
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto p-6">
+      <main className="max-w-7xl mx-auto p-4 sm:p-6">
         <form onSubmit={handleSubmit}>
-          {/* タブナビゲーション */}
-          <div className="flex border-b mb-6">
+          {/* タブナビゲーション - モバイル対応 */}
+          <div className="flex overflow-x-auto border-b mb-6 -mx-4 px-4 sm:mx-0 sm:px-0">
             {['basic', 'manager', 'images', 'menu'].map((tab) => (
               <button
                 key={tab}
                 type="button"
                 onClick={() => setActiveTab(tab)}
-                className={`px-6 py-3 font-medium ${
+                className={`px-4 sm:px-6 py-3 font-medium whitespace-nowrap text-sm sm:text-base ${
                   activeTab === tab
                     ? 'border-b-2 border-blue-600 text-blue-600'
                     : 'text-gray-600 hover:text-gray-900'
@@ -146,8 +146,8 @@ export default function EditStore() {
 
           {/* 基本情報タブ */}
           {activeTab === 'basic' && (
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h2 className="text-xl font-bold mb-4">基本情報</h2>
+            <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
+              <h2 className="text-lg sm:text-xl font-bold mb-4">基本情報</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium mb-1">店舗名 *</label>
@@ -265,8 +265,8 @@ export default function EditStore() {
 
           {/* 店長情報タブ */}
           {activeTab === 'manager' && (
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h2 className="text-xl font-bold mb-4">店長情報</h2>
+            <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
+              <h2 className="text-lg sm:text-xl font-bold mb-4">店長情報</h2>
               
               {/* LINE連携セクション */}
               <div className="mb-6 p-4 bg-blue-50 rounded">
@@ -354,8 +354,8 @@ export default function EditStore() {
 
           {/* 画像管理タブ */}
           {activeTab === 'images' && (
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h2 className="text-xl font-bold mb-4">画像管理</h2>
+            <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
+              <h2 className="text-lg sm:text-xl font-bold mb-4">画像管理</h2>
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium mb-1">トップページ用画像</label>
@@ -406,8 +406,8 @@ export default function EditStore() {
 
           {/* メニュー管理タブ */}
           {activeTab === 'menu' && (
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h2 className="text-xl font-bold mb-4">メニュー管理</h2>
+            <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
+              <h2 className="text-lg sm:text-xl font-bold mb-4">メニュー管理</h2>
               <p className="text-gray-600 mb-4">メニューの詳細編集は専用ページで行います。</p>
               <Link 
                 href={`/admin/stores/${store._id}/menus`}
@@ -422,7 +422,7 @@ export default function EditStore() {
           <div className="mt-6 flex justify-end">
             <button
               type="submit"
-              className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700"
+              className="w-full sm:w-auto bg-blue-600 text-white px-6 py-3 sm:py-2 rounded hover:bg-blue-700"
             >
               保存する
             </button>
