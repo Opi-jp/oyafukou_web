@@ -8,7 +8,11 @@ export async function GET() {
     await client.connect();
     
     // 両方のデータベースをチェック
-    const results: Record<string, any> = {};
+    interface DatabaseInfo {
+      managers: any[];
+      stores: number;
+    }
+    const results: Record<string, DatabaseInfo> = {};
     
     // parent_site_admin をチェック
     const parentDb = client.db('parent_site_admin');

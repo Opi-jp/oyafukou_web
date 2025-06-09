@@ -151,11 +151,14 @@ export default function StoreQRCodePage() {
 
             <div className="text-center mb-6">
               {qrCodeUrl && (
-                <img 
-                  src={qrCodeUrl} 
-                  alt="QRコード" 
-                  className="mx-auto border-2 border-gray-300 p-4 bg-white"
-                />
+                <>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img 
+                    src={qrCodeUrl} 
+                    alt="QRコード" 
+                    className="mx-auto border-2 border-gray-300 p-4 bg-white"
+                  />
+                </>
               )}
             </div>
 
