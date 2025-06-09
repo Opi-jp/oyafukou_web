@@ -68,25 +68,37 @@ export async function POST(request: NextRequest) {
     const events = JSON.parse(body).events;
 
     for (const event of events) {
-      // メッセージイベント以外はスキップ
-      if (event.type !== 'message') continue;
-
       const lineUserId = event.source.userId;
-      
-      // 店舗を特定
-      const store = await getStoreByLineUserId(lineUserId);
-      
-      if (!store) {
-        // 未登録ユーザーへの返信
+
+      // 友だち追加イベントの処理
+      if (event.type === 'follow') {
+        // 友だち追加メッセージ
         await client.replyMessage({
           replyToken: event.replyToken,
           messages: [{
             type: 'text',
-            text: '申し訳ございません。あなたのLINEアカウントは登録されていません。\n管理者にお問い合わせください。'
+            text: `こんにちは！八丈島親不孝通り更新システムです。\n\n【店長登録の手順】\n1. このメッセージのスクリーンショットを撮影\n2. 管理者に送信して登録を依頼\n3. 登録完了の連絡を待つ\n\n【あなたのLINE ID】\n${lineUserId}\n\n※このIDを管理者にお伝えください`
           }]
         });
         continue;
       }
+
+      // メッセージイベントの処理
+      if (event.type === 'message') {
+        // 店舗を特定
+        const store = await getStoreByLineUserId(lineUserId);
+        
+        if (!store) {
+          // 未登録ユーザーへの返信
+          await client.replyMessage({
+            replyToken: event.replyToken,
+            messages: [{
+              type: 'text',
+              text: '申し訳ございません。あなたのLINEアカウントは登録されていません。\n管理者にお問い合わせください。'
+            }]
+          });
+          continue;
+        }
 
       // テキストメッセージの処理
       if (event.message.type === 'text') {
@@ -185,6 +197,7 @@ export async function POST(request: NextRequest) {
             text: 'テキストメッセージまたは画像を送信してください。\n\nテキスト: 店長コメントを更新\n画像: マネージャー写真を更新'
           }]
         });
+      }
       }
     }
 

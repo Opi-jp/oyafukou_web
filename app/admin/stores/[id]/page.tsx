@@ -265,6 +265,21 @@ export default function EditStore() {
           {activeTab === 'manager' && (
             <div className="bg-white rounded-lg shadow-md p-6">
               <h2 className="text-xl font-bold mb-4">店長情報</h2>
+              
+              {/* LINE連携ボタン */}
+              <div className="mb-6 p-4 bg-blue-50 rounded">
+                <h3 className="font-semibold text-blue-900 mb-2">LINE連携</h3>
+                <p className="text-sm text-blue-800 mb-3">
+                  店長がLINEでメッセージを送るだけで、自動的に店長コメントが更新されます。
+                </p>
+                <Link 
+                  href={`/admin/stores/${store._id}/qr-code`}
+                  className="inline-block bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                >
+                  QRコードを生成
+                </Link>
+              </div>
+              
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium mb-1">店長名</label>
