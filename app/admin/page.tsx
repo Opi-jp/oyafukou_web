@@ -134,6 +134,10 @@ export default function Admin() {
             <h3 className="text-lg font-bold text-blue-600 mb-2">LINE連携管理</h3>
             <p className="text-sm text-gray-600">店長のLINEアカウントを管理し、コメント自動更新を設定</p>
           </Link>
+          <Link href="/admin/line-setup" className="bg-white rounded-lg shadow-md p-4 sm:p-6 hover:shadow-lg transition-shadow">
+            <h3 className="text-lg font-bold text-green-600 mb-2">LINE Bot設定</h3>
+            <p className="text-sm text-gray-600">共通QRコードと登録手順を確認</p>
+          </Link>
         </div>
 
         <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 mb-6">

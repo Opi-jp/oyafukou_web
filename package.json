@@ -11,6 +11,7 @@
   "dependencies": {
     "@line/bot-sdk": "^10.0.0",
     "@types/qrcode": "^1.5.5",
+    "@types/qrcode.react": "^1.0.5",
     "@vercel/blob": "^1.1.1",
     "axios": "^1.9.0",
     "bcryptjs": "^3.0.2",
@@ -19,6 +20,7 @@
     "mongoose": "^8.15.1",
     "next": "15.3.3",
     "qrcode": "^1.5.4",
+    "qrcode.react": "^4.2.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },

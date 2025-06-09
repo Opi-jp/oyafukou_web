@@ -277,15 +277,22 @@ export default function EditStore() {
                     <p className="text-sm text-blue-800 mb-3">
                       店長がLINEでメッセージを送るだけで、自動的に店長コメントが更新されます。
                     </p>
-                    <Link 
-                      href={`/admin/stores/${store._id}/qr-code`}
-                      className="inline-block bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-                    >
-                      QRコードを生成
-                    </Link>
+                    <div className="bg-yellow-50 p-3 rounded mb-3">
+                      <p className="text-sm text-yellow-800">
+                        <strong>新しい登録方法:</strong><br />
+                        1. <Link href="/admin/line-setup" className="text-blue-600 underline">共通QRコード</Link>から友だち追加<br />
+                        2. 自動表示される店舗リストから選択<br />
+                        3. 自動的に登録完了！
+                      </p>
+                    </div>
                   </>
                 ) : (
                   <div className="space-y-3">
+                    <div className="bg-green-50 p-3 rounded">
+                      <p className="text-sm text-green-800 font-semibold">
+                        ✅ LINE連携済み
+                      </p>
+                    </div>
                     <div>
                       <label className="block text-sm font-medium mb-1">LINE User ID</label>
                       <input
@@ -307,12 +314,9 @@ export default function EditStore() {
                       />
                       <span className="text-sm">LINE連携を有効にする</span>
                     </label>
-                    <Link 
-                      href={`/admin/stores/${store._id}/qr-code`}
-                      className="inline-block text-blue-600 underline text-sm"
-                    >
-                      QRコードを再表示
-                    </Link>
+                    <div className="text-sm text-gray-600">
+                      <p>登録解除する場合は、LINE User IDを削除して保存してください。</p>
+                    </div>
                   </div>
                 )}
               </div>

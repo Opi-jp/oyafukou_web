@@ -13,11 +13,24 @@
 - `/api/stores` - 店舗一覧の取得/作成
 - `/api/stores/[id]` - 個別店舗の取得/更新/削除
 - `/api/upload` - 画像アップロード（Vercel Blob）
+- `/api/line-webhook` - LINE Botのwebhookエンドポイント
+- `/api/line-managers` - LINE連携管理者の一覧取得
+- `/api/line-managers/[id]` - LINE連携管理者の個別操作
 
 ## 管理画面の仕様
 - パス: `/admin`
 - 認証: 現在は未実装（ユーザーの要望により後回し）
-- 機能: 店舗の追加/編集/削除、画像アップロード
+- 機能: 
+  - 店舗の追加/編集/削除
+  - 画像アップロード（Vercel Blob使用）
+  - メニュー管理（おすすめ/通常/ドリンク）
+  - LINE連携管理
+  - QRコード生成
+- サブページ:
+  - `/admin/stores/[id]` - 店舗編集
+  - `/admin/stores/[id]/menus` - メニュー管理
+  - `/admin/stores/[id]/qr-code` - LINE QRコード表示
+  - `/admin/line-managers` - LINE連携一覧
 
 ## 店舗データ構造
 ```typescript
@@ -41,6 +54,10 @@
   menuHighlights: MenuItem[];      // おすすめメニュー
   regularMenu: CategoryMenuItem[]; // 通常メニュー
   drinkMenu: CategoryMenuItem[];   // ドリンクメニュー
+  
+  // LINE連携
+  lineUserId?: string;      // LINE User ID
+  lineManagerActive?: boolean; // LINE連携有効フラグ
   
   // その他
   managerName?: string;
@@ -79,13 +96,52 @@ npm run typecheck
 - 自動で営業中/休業中を判定（曜日と時間から）
 - フッターのマージンは電話ボタンの有無で調整
 - SEO対策実装済み（meta tags, OGP, sitemap, robots.txt）
+- MongoDBはparent_site_adminデータベースを使用（oyafukou_dbは廃止）
+- LINE webhookは`/api/line-webhook`で受信
+- 環境変数：
+  - `MONGODB_URI` - MongoDB接続文字列
+  - `BLOB_READ_WRITE_TOKEN` - Vercel Blob用トークン
+  - `LINE_CHANNEL_ACCESS_TOKEN` - LINE Bot用アクセストークン
+  - `SLACK_WEBHOOK_URL` - Slack通知用WebhookURL
 
 ## デプロイ
 - GitHub: https://github.com/Opi-jp/oyafukou_web
 - Vercel: 自動デプロイ設定済み（mainブランチへのpushで自動デプロイ）
 - URL: https://oyafukou-web.vercel.app
 
-## 最近の更新
+## 最近の更新（2025年1月）
 - ハンバーガーメニュー実装（ホーム｜アクセス｜各店舗）
 - 各店舗はドロップダウンで全店舗リスト表示
 - 全ページ共通のHeaderコンポーネント使用
+- LINE Bot連携機能実装
+  - 店長がLINEでメッセージを送信すると自動的にコメント更新
+  - QRコード生成機能
+  - LINE連携管理画面（`/admin/line-managers`）
+- Slack通知機能実装
+  - 店舗情報更新時に自動通知
+  - LINE経由の更新も通知
+- データベース統合（oyafukou_db → parent_site_admin）
+- 管理画面の完全モバイル対応
+  - レスポンシブテーブル
+  - タブナビゲーションのスクロール対応
+  - ImageUploadコンポーネントのモバイル最適化
+
+## LINE連携の流れ
+1. 管理画面で店舗編集ページを開く
+2. 「店長情報」タブでQRコードを生成
+3. 店長がQRコードをスキャンしてLINE友だち追加
+4. 店長が「登録」とメッセージを送信
+5. 返信されたユーザーIDを管理画面に入力
+6. 「LINE連携を有効にする」にチェックして保存
+7. 以降、店長がLINEでメッセージを送ると自動的にコメント更新
+
+## 作業継続方法
+VSCodeを閉じた後も、以下の方法で作業を継続できます：
+```bash
+# プロジェクトディレクトリに移動
+cd /Users/yukio/oyafukou-web
+
+# Claude Codeを起動
+claude
+```
+このファイル（CLAUDE.md）が自動的に読み込まれ、プロジェクトの状態が把握されます。

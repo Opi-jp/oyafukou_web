@@ -27,6 +27,53 @@ async function getStoreByLineUserId(lineUserId: string) {
   return store;
 }
 
+// 全店舗を取得
+async function getAllStores() {
+  const uri = process.env.MONGODB_URI!;
+  const client = new MongoClient(uri);
+  await client.connect();
+  
+  const db = client.db('parent_site_admin');
+  const stores = await db.collection('stores')
+    .find({})
+    .project({ _id: 1, name: 1 })
+    .toArray();
+  
+  await client.close();
+  return stores;
+}
+
+// LINE IDを店舗に登録
+async function registerLineUser(storeId: string, lineUserId: string) {
+  const uri = process.env.MONGODB_URI!;
+  const client = new MongoClient(uri);
+  await client.connect();
+  
+  const db = client.db('parent_site_admin');
+  const { ObjectId } = await import('mongodb');
+  
+  // 既に他の店舗に登録されていないかチェック
+  const existingStore = await db.collection('stores').findOne({ lineUserId });
+  if (existingStore) {
+    await client.close();
+    return { success: false, message: `既に${existingStore.name}に登録されています` };
+  }
+  
+  const result = await db.collection('stores').updateOne(
+    { _id: new ObjectId(storeId) },
+    { 
+      $set: { 
+        lineUserId: lineUserId,
+        lineManagerActive: true,
+        lastUpdated: new Date()
+      } 
+    }
+  );
+  
+  await client.close();
+  return { success: result.modifiedCount > 0, message: '' };
+}
+
 // 店長コメントを更新
 async function updateManagerComment(storeId: string, comment: string) {
   const uri = process.env.MONGODB_URI!;
@@ -84,12 +131,25 @@ export async function POST(request: NextRequest) {
 
       // 友だち追加イベントの処理
       if (event.type === 'follow') {
-        // 友だち追加メッセージ
+        // 全店舗を取得
+        const stores = await getAllStores();
+        
+        // クイックリプライで店舗選択を促す
         await client.replyMessage({
           replyToken: event.replyToken,
           messages: [{
             type: 'text',
-            text: `こんにちは！八丈島親不孝通り更新システムです。\n\n【店長登録の手順】\n1. このメッセージのスクリーンショットを撮影\n2. 管理者に送信して登録を依頼\n3. 登録完了の連絡を待つ\n\n【あなたのLINE ID】\n${lineUserId}\n\n※このIDを管理者にお伝えください`
+            text: 'こんにちは！八丈島親不孝通りの更新システムです。\n\nあなたの店舗を選択してください：',
+            quickReply: {
+              items: stores.slice(0, 13).map(store => ({  // LINE APIの制限により最大13個
+                type: 'action',
+                action: {
+                  type: 'message',
+                  label: store.name,
+                  text: `店舗登録:${store._id}:${store.name}`
+                }
+              }))
+            }
           }]
         });
         continue;
@@ -98,6 +158,73 @@ export async function POST(request: NextRequest) {
       // メッセージイベントの処理
       if (event.type === 'message') {
         try {
+          // テキストメッセージの場合、まず店舗登録パターンをチェック
+          if (event.message.type === 'text') {
+            const messageText = event.message.text;
+            
+            // 店舗登録メッセージのパターンマッチ
+            const registrationPattern = /^店舗登録:([a-f0-9]{24}):(.+)$/;
+            const match = messageText.match(registrationPattern);
+            
+            if (match) {
+              const [, storeId, storeName] = match;
+              
+              // 店舗にLINE IDを自動登録
+              const result = await registerLineUser(storeId, lineUserId);
+              
+              if (result.success) {
+                await client.replyMessage({
+                  replyToken: event.replyToken,
+                  messages: [{
+                    type: 'text',
+                    text: `✅ ${storeName}への登録が完了しました！\n\nこれから以下の情報を送信できます：\n・テキスト → 店長コメント更新\n・画像 → マネージャー写真更新`
+                  }]
+                });
+                
+                // Slack通知
+                const slackMessage = createLineUpdateMessage(
+                  storeName,
+                  'システム',
+                  'comment',
+                  `新規LINE連携: ${lineUserId}`
+                );
+                await sendSlackNotification(slackMessage);
+              } else {
+                await client.replyMessage({
+                  replyToken: event.replyToken,
+                  messages: [{
+                    type: 'text',
+                    text: `❌ 登録に失敗しました: ${result.message}`
+                  }]
+                });
+              }
+              continue;
+            }
+            
+            // 「登録」というメッセージの場合、店舗選択を再表示
+            if (messageText === '登録' || messageText === '店舗登録') {
+              const stores = await getAllStores();
+              await client.replyMessage({
+                replyToken: event.replyToken,
+                messages: [{
+                  type: 'text',
+                  text: 'あなたの店舗を選択してください：',
+                  quickReply: {
+                    items: stores.slice(0, 13).map(store => ({
+                      type: 'action',
+                      action: {
+                        type: 'message',
+                        label: store.name,
+                        text: `店舗登録:${store._id}:${store.name}`
+                      }
+                    }))
+                  }
+                }]
+              });
+              continue;
+            }
+          }
+          
           // 店舗を特定
           const store = await getStoreByLineUserId(lineUserId);
           
