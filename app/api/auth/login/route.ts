@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
-import clientPromise from '@/lib/mongodb'
-import User from '@/models/User'
+import { MongoClient } from 'mongodb'
 
 // JWT秘密鍵（本番環境では環境変数から取得）
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-this-in-production'
@@ -20,10 +19,13 @@ export async function POST(request: NextRequest) {
     }
 
     // MongoDBに接続
-    await clientPromise
-
-    // ユーザーを検索
-    const user = await User.findOne({ username })
+    const uri = process.env.MONGODB_URI!
+    const client = new MongoClient(uri)
+    await client.connect()
+    
+    // ユーザーはoyafukou_dbに保存する
+    const db = client.db('oyafukou_db')
+    const user = await db.collection('users').findOne({ username })
 
     if (!user) {
       return NextResponse.json(
@@ -52,6 +54,9 @@ export async function POST(request: NextRequest) {
       JWT_SECRET,
       { expiresIn: '24h' }
     )
+
+    // 接続を閉じる
+    await client.close()
 
     // ログイン成功
     return NextResponse.json({

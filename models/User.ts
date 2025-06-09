@@ -32,9 +32,6 @@ const UserSchema = new mongoose.Schema<IUser>({
   timestamps: true
 })
 
-// インデックスの作成
-UserSchema.index({ username: 1 })
-
 // 既存のモデルがあれば削除してから再作成
 if (mongoose.models.User) {
   delete mongoose.models.User

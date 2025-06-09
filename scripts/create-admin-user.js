@@ -2,6 +2,9 @@ const mongoose = require('mongoose')
 const bcrypt = require('bcryptjs')
 const readline = require('readline')
 
+// dotenvを読み込み
+require('dotenv').config({ path: '.env.local' })
+
 // MongoDB接続設定
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/oyafukou'
 
@@ -42,9 +45,10 @@ const question = (query) => new Promise((resolve) => rl.question(query, resolve)
 
 async function createAdminUser() {
   try {
-    // MongoDBに接続
-    await mongoose.connect(MONGODB_URI)
-    console.log('MongoDBに接続しました')
+    // MongoDBに接続（oyafukou_dbデータベースを使用）
+    const mongoUri = MONGODB_URI.replace(/\/[^/]+\?/, '/oyafukou_db?')
+    await mongoose.connect(mongoUri)
+    console.log('MongoDBに接続しました（oyafukou_db）')
 
     // ユーザー名の入力
     const username = await question('管理者ユーザー名を入力してください（3文字以上）: ')
