@@ -8,7 +8,7 @@ export async function GET() {
     await client.connect();
     
     // 両方のデータベースをチェック
-    const results: any = {};
+    const results: Record<string, any> = {};
     
     // parent_site_admin をチェック
     const parentDb = client.db('parent_site_admin');

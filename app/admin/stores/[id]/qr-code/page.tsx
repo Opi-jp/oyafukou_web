@@ -20,7 +20,7 @@ export default function StoreQRCodePage() {
 
   useEffect(() => {
     fetchStoreAndGenerateQR();
-  }, [storeId]);
+  }, [storeId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const fetchStoreAndGenerateQR = async () => {
     try {
