@@ -66,9 +66,13 @@ export async function POST(request: NextRequest) {
     }
 
     const events = JSON.parse(body).events;
+    
+    // デバッグ用ログ
+    console.log('Webhook received:', JSON.stringify(events, null, 2));
 
     for (const event of events) {
       const lineUserId = event.source.userId;
+      console.log('Processing event for user:', lineUserId);
 
       // 友だち追加イベントの処理
       if (event.type === 'follow') {
