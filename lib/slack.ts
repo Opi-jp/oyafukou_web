@@ -1,19 +1,16 @@
-interface SlackBlock {
+// Slack Block Kit の型定義
+type SlackTextObject = {
+  type: 'plain_text' | 'mrkdwn';
+  text: string;
+  emoji?: boolean;
+};
+
+type SlackBlock = {
   type: string;
-  text?: {
-    type: string;
-    text: string;
-    emoji?: boolean;
-  };
-  fields?: Array<{
-    type: string;
-    text: string;
-  }>;
-  elements?: Array<{
-    type: string;
-    text: string;
-  }>;
-}
+  text?: SlackTextObject;
+  fields?: SlackTextObject[];
+  elements?: SlackTextObject[];
+};
 
 interface SlackMessage {
   text: string;
@@ -68,7 +65,7 @@ export function createStoreUpdateMessage(
     delete: '削除'
   }[updateType];
 
-  const blocks = [
+  const blocks: SlackBlock[] = [
     {
       type: 'header',
       text: {
@@ -128,7 +125,7 @@ export function createLineUpdateMessage(
   const emoji = updateType === 'comment' ? '💬' : '📷';
   const updateText = updateType === 'comment' ? 'コメント' : '写真';
 
-  const blocks = [
+  const blocks: SlackBlock[] = [
     {
       type: 'header',
       text: {
