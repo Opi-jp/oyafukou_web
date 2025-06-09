@@ -135,7 +135,21 @@ const StoreSchema = new mongoose.Schema({
     type: String,
     trim: true
   },
+  // LINE連携
+  lineUserId: {
+    type: String,
+    trim: true,
+    sparse: true  // null値を許可し、インデックスに含めない
+  },
+  lineManagerActive: {
+    type: Boolean,
+    default: false
+  },
   createdAt: {
+    type: Date,
+    default: Date.now
+  },
+  lastUpdated: {
     type: Date,
     default: Date.now
   }

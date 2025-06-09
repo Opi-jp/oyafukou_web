@@ -12,23 +12,14 @@ async function getStoreByLineUserId(lineUserId: string) {
   const client = new MongoClient(uri);
   await client.connect();
   
-  // マネージャーは oyafukou_db に存在
-  const managerDb = client.db('oyafukou_db');
-  console.log('Searching for manager with lineUserId:', lineUserId);
+  // 店舗は parent_site_admin に存在（LINE情報も含む）
+  const db = client.db('parent_site_admin');
+  console.log('Searching for store with lineUserId:', lineUserId);
   
-  const manager = await managerDb.collection('managers').findOne({ lineUserId, isActive: true });
-  console.log('Found manager:', manager);
-  
-  if (!manager) {
-    await client.close();
-    return null;
-  }
-  
-  // 店舗は parent_site_admin に存在
-  const storeDb = client.db('parent_site_admin');
-  const { ObjectId } = await import('mongodb');
-  console.log('Searching for store with ID:', manager.storeId);
-  const store = await storeDb.collection('stores').findOne({ _id: new ObjectId(manager.storeId) });
+  const store = await db.collection('stores').findOne({ 
+    lineUserId: lineUserId,
+    lineManagerActive: true 
+  });
   console.log('Found store:', store?.name || 'Not found');
   
   await client.close();

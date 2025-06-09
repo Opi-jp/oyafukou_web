@@ -42,6 +42,8 @@ interface Store {
   menuHighlights: MenuItem[];
   regularMenu: CategoryMenuItem[];
   drinkMenu: CategoryMenuItem[];
+  lineUserId?: string;
+  lineManagerActive?: boolean;
 }
 
 export default function EditStore() {
@@ -266,18 +268,53 @@ export default function EditStore() {
             <div className="bg-white rounded-lg shadow-md p-6">
               <h2 className="text-xl font-bold mb-4">店長情報</h2>
               
-              {/* LINE連携ボタン */}
+              {/* LINE連携セクション */}
               <div className="mb-6 p-4 bg-blue-50 rounded">
-                <h3 className="font-semibold text-blue-900 mb-2">LINE連携</h3>
-                <p className="text-sm text-blue-800 mb-3">
-                  店長がLINEでメッセージを送るだけで、自動的に店長コメントが更新されます。
-                </p>
-                <Link 
-                  href={`/admin/stores/${store._id}/qr-code`}
-                  className="inline-block bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-                >
-                  QRコードを生成
-                </Link>
+                <h3 className="font-semibold text-blue-900 mb-2">LINE連携設定</h3>
+                
+                {!store.lineUserId ? (
+                  <>
+                    <p className="text-sm text-blue-800 mb-3">
+                      店長がLINEでメッセージを送るだけで、自動的に店長コメントが更新されます。
+                    </p>
+                    <Link 
+                      href={`/admin/stores/${store._id}/qr-code`}
+                      className="inline-block bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                    >
+                      QRコードを生成
+                    </Link>
+                  </>
+                ) : (
+                  <div className="space-y-3">
+                    <div>
+                      <label className="block text-sm font-medium mb-1">LINE User ID</label>
+                      <input
+                        type="text"
+                        name="lineUserId"
+                        value={store.lineUserId || ''}
+                        onChange={handleInputChange}
+                        className="w-full px-3 py-2 border rounded bg-gray-50 font-mono text-sm"
+                        readOnly
+                      />
+                    </div>
+                    <label className="flex items-center">
+                      <input
+                        type="checkbox"
+                        name="lineManagerActive"
+                        checked={store.lineManagerActive || false}
+                        onChange={handleInputChange}
+                        className="mr-2"
+                      />
+                      <span className="text-sm">LINE連携を有効にする</span>
+                    </label>
+                    <Link 
+                      href={`/admin/stores/${store._id}/qr-code`}
+                      className="inline-block text-blue-600 underline text-sm"
+                    >
+                      QRコードを再表示
+                    </Link>
+                  </div>
+                )}
               </div>
               
               <div className="space-y-4">
