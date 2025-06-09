@@ -1,6 +1,23 @@
+interface SlackBlock {
+  type: string;
+  text?: {
+    type: string;
+    text: string;
+    emoji?: boolean;
+  };
+  fields?: Array<{
+    type: string;
+    text: string;
+  }>;
+  elements?: Array<{
+    type: string;
+    text: string;
+  }>;
+}
+
 interface SlackMessage {
   text: string;
-  blocks?: any[];
+  blocks?: SlackBlock[];
 }
 
 export async function sendSlackNotification(message: SlackMessage): Promise<boolean> {
