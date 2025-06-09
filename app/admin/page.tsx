@@ -128,6 +128,14 @@ export default function Admin() {
       </header>
 
       <main className="max-w-7xl mx-auto p-6">
+        {/* 管理メニュー */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <Link href="/admin/line-managers" className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+            <h3 className="text-lg font-bold text-blue-600 mb-2">LINE連携管理</h3>
+            <p className="text-sm text-gray-600">店長のLINEアカウントを管理し、コメント自動更新を設定</p>
+          </Link>
+        </div>
+
         <div className="bg-white rounded-lg shadow-md p-6 mb-6">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-xl font-bold">店舗管理</h2>
