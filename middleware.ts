@@ -10,8 +10,20 @@ const protectedRoutes = [
   '/api/line-managers'
 ]
 
+// 認証をスキップするルート
+const publicRoutes = [
+  '/api/line-webhook',
+  '/api/auth/login'
+]
+
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
+
+  // 公開ルートはスキップ
+  const isPublicRoute = publicRoutes.some(route => pathname.startsWith(route))
+  if (isPublicRoute) {
+    return NextResponse.next()
+  }
 
   // 保護されたルートかチェック
   const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route))

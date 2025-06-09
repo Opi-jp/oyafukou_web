@@ -22,24 +22,41 @@ async function connectToDatabase() {
 
 // LINEユーザーIDから店舗を特定
 async function getStoreByLineUserId(lineUserId: string) {
-  const db = await connectToDatabase();
+  const uri = process.env.MONGODB_URI!;
+  const client = new MongoClient(uri);
+  await client.connect();
+  
+  // マネージャーは oyafukou_db に存在
+  const managerDb = client.db('oyafukou_db');
   console.log('Searching for manager with lineUserId:', lineUserId);
   
-  const manager = await db.collection('managers').findOne({ lineUserId, isActive: true });
+  const manager = await managerDb.collection('managers').findOne({ lineUserId, isActive: true });
   console.log('Found manager:', manager);
   
-  if (!manager) return null;
+  if (!manager) {
+    await client.close();
+    return null;
+  }
   
+  // 店舗は parent_site_admin に存在
+  const storeDb = client.db('parent_site_admin');
   const { ObjectId } = await import('mongodb');
   console.log('Searching for store with ID:', manager.storeId);
-  const store = await db.collection('stores').findOne({ _id: new ObjectId(manager.storeId) });
+  const store = await storeDb.collection('stores').findOne({ _id: new ObjectId(manager.storeId) });
   console.log('Found store:', store?.name || 'Not found');
+  
+  await client.close();
   return store;
 }
 
 // 店長コメントを更新
 async function updateManagerComment(storeId: string, comment: string) {
-  const db = await connectToDatabase();
+  const uri = process.env.MONGODB_URI!;
+  const client = new MongoClient(uri);
+  await client.connect();
+  
+  // 店舗は parent_site_admin に存在
+  const db = client.db('parent_site_admin');
   const { ObjectId } = await import('mongodb');
   const result = await db.collection('stores').updateOne(
     { _id: new ObjectId(storeId) },
@@ -50,6 +67,8 @@ async function updateManagerComment(storeId: string, comment: string) {
       } 
     }
   );
+  
+  await client.close();
   return result.modifiedCount > 0;
 }
 
@@ -173,7 +192,12 @@ export async function POST(request: NextRequest) {
           });
 
           // データベースを更新
-          const db = await connectToDatabase();
+          const uri = process.env.MONGODB_URI!;
+          const updateClient = new MongoClient(uri);
+          await updateClient.connect();
+          
+          // 店舗は parent_site_admin に存在
+          const db = updateClient.db('parent_site_admin');
           const { ObjectId } = await import('mongodb');
           await db.collection('stores').updateOne(
             { _id: new ObjectId(store._id.toString()) },
@@ -184,6 +208,8 @@ export async function POST(request: NextRequest) {
               } 
             }
           );
+          
+          await updateClient.close();
 
           // 成功メッセージ
           await client.replyMessage({
