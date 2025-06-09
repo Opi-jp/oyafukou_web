@@ -23,8 +23,8 @@ export async function POST(request: NextRequest) {
     const client = new MongoClient(uri)
     await client.connect()
     
-    // ユーザーはoyafukou_dbに保存する
-    const db = client.db('oyafukou_db')
+    // ユーザーはparent_site_adminに保存されている
+    const db = client.db('parent_site_admin')
     const user = await db.collection('users').findOne({ username })
 
     if (!user) {
