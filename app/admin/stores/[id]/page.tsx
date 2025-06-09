@@ -293,7 +293,7 @@ export default function EditStore() {
                         name="lineUserId"
                         value={store.lineUserId || ''}
                         onChange={handleInputChange}
-                        className="w-full px-3 py-2 border rounded bg-gray-50 font-mono text-sm"
+                        className="w-full px-3 py-2 border rounded bg-gray-50 font-mono text-xs sm:text-sm break-all"
                         readOnly
                       />
                     </div>
@@ -317,7 +317,7 @@ export default function EditStore() {
                 )}
               </div>
               
-              <div className="space-y-4">
+              <div className="grid grid-cols-1 gap-4">
                 <div>
                   <label className="block text-sm font-medium mb-1">店長名</label>
                   <input
@@ -356,9 +356,9 @@ export default function EditStore() {
           {activeTab === 'images' && (
             <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
               <h2 className="text-lg sm:text-xl font-bold mb-4">画像管理</h2>
-              <div className="space-y-4">
+              <div className="grid grid-cols-1 gap-6">
                 <div>
-                  <label className="block text-sm font-medium mb-1">トップページ用画像</label>
+                  <label className="block text-sm font-medium mb-2">トップページ用画像</label>
                   <ImageUpload
                     value={store.topImage || ''}
                     onChange={(url) => setStore({ ...store, topImage: url })}
@@ -366,7 +366,7 @@ export default function EditStore() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">詳細ページトップ画像</label>
+                  <label className="block text-sm font-medium mb-2">詳細ページトップ画像</label>
                   <ImageUpload
                     value={store.detailImage1 || ''}
                     onChange={(url) => setStore({ ...store, detailImage1: url })}
@@ -374,7 +374,7 @@ export default function EditStore() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">詳細ページその2画像</label>
+                  <label className="block text-sm font-medium mb-2">詳細ページその2画像</label>
                   <ImageUpload
                     value={store.detailImage2 || ''}
                     onChange={(url) => setStore({ ...store, detailImage2: url })}
@@ -382,7 +382,7 @@ export default function EditStore() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">外観画像</label>
+                  <label className="block text-sm font-medium mb-2">外観画像</label>
                   <ImageUpload
                     value={store.exteriorImage || ''}
                     onChange={(url) => setStore({ ...store, exteriorImage: url })}
@@ -390,13 +390,13 @@ export default function EditStore() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">その他の画像URL（カンマ区切り）</label>
+                  <label className="block text-sm font-medium mb-2">その他の画像URL（カンマ区切り）</label>
                   <textarea
                     name="images"
                     value={store.images.join(', ')}
                     onChange={(e) => setStore({ ...store, images: e.target.value.split(',').map(url => url.trim()).filter(url => url) })}
                     rows={3}
-                    className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                     placeholder="/images/store1.jpg, /images/store2.jpg"
                   />
                 </div>

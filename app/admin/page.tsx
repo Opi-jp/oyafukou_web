@@ -231,7 +231,7 @@ export default function Admin() {
                   />
                 </div>
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-medium mb-1">外観画像</label>
+                  <label className="block text-sm font-medium mb-2">外観画像</label>
                   <ImageUpload
                     value={formData.exteriorImage}
                     onChange={(url) => setFormData(prev => ({ ...prev, exteriorImage: url }))}

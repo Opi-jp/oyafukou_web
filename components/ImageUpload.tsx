@@ -77,16 +77,16 @@ export default function ImageUpload({
 
   return (
     <div className="space-y-2">
-      <div className="flex gap-2">
+      <div className="flex flex-col sm:flex-row gap-2">
         <input
           type="text"
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
-          className="flex-1 px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="flex-1 px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
           disabled={uploading}
         />
-        <label className="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 cursor-pointer flex items-center">
+        <label className="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 cursor-pointer flex items-center justify-center whitespace-nowrap text-sm">
           {uploading ? 'アップロード中...' : '画像を選択'}
           <input
             type="file"
@@ -100,7 +100,7 @@ export default function ImageUpload({
       
       {value && (
         <>
-          <div className={`mt-2 ${circular ? 'w-32 h-32' : 'w-48 h-32'} overflow-hidden ${circular ? 'rounded-full border-4 border-blue-500' : 'rounded'} bg-gray-100 relative`}>
+          <div className={`mt-2 ${circular ? 'w-24 h-24 sm:w-32 sm:h-32' : 'w-full sm:w-48 h-32'} overflow-hidden ${circular ? 'rounded-full border-4 border-blue-500' : 'rounded'} bg-gray-100 relative mx-auto sm:mx-0`}>
             {imageLoading && (
               <div className="absolute inset-0 flex items-center justify-center bg-gray-200">
                 <span className="text-gray-500">読み込み中...</span>
