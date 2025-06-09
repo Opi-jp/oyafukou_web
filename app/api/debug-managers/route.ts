@@ -8,8 +8,17 @@ export async function GET() {
     await client.connect();
     
     // 両方のデータベースをチェック
+    interface Manager {
+      _id: string;
+      lineUserId: string;
+      storeId: string;
+      managerName: string;
+      isActive: boolean;
+      createdAt: Date;
+      updatedAt: Date;
+    }
     interface DatabaseInfo {
-      managers: any[];
+      managers: Manager[];
       stores: number;
     }
     const results: Record<string, DatabaseInfo> = {};
