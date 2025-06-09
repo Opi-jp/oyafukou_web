@@ -19,6 +19,26 @@ interface CategoryMenuItem {
   category: string;
 }
 
+interface StaffMember {
+  lineUserId: string;
+  name: string;
+  role: string;
+  photo?: string;
+  isActive: boolean;
+  addedAt: Date;
+}
+
+interface StaffComment {
+  staffLineUserId: string;
+  staffName: string;
+  staffRole: string;
+  staffPhoto?: string;
+  comment: string;
+  isApproved: boolean;
+  isActive: boolean;
+  createdAt: Date;
+}
+
 interface Store {
   _id: string;
   name: string;
@@ -44,6 +64,9 @@ interface Store {
   drinkMenu: CategoryMenuItem[];
   lineUserId?: string;
   lineManagerActive?: boolean;
+  staffMembers?: StaffMember[];
+  staffComments?: StaffComment[];
+  activeStaffComment?: StaffComment;
 }
 
 export default function EditStore() {
@@ -76,12 +99,18 @@ export default function EditStore() {
     if (!store) return;
 
     try {
+      // LINE IDが空文字の場合はnullに変換
+      const storeData = {
+        ...store,
+        lineUserId: store.lineUserId || null
+      };
+
       const response = await fetch(`/api/stores/${store._id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(store),
+        body: JSON.stringify(storeData),
       });
 
       if (response.ok) {
@@ -125,7 +154,7 @@ export default function EditStore() {
         <form onSubmit={handleSubmit}>
           {/* タブナビゲーション - モバイル対応 */}
           <div className="flex overflow-x-auto border-b mb-6 -mx-4 px-4 sm:mx-0 sm:px-0">
-            {['basic', 'manager', 'images', 'menu'].map((tab) => (
+            {['basic', 'manager', 'images', 'menu', 'staff'].map((tab) => (
               <button
                 key={tab}
                 type="button"
@@ -140,6 +169,7 @@ export default function EditStore() {
                 {tab === 'manager' && '店長情報'}
                 {tab === 'images' && '画像管理'}
                 {tab === 'menu' && 'メニュー管理'}
+                {tab === 'staff' && 'スタッフ管理'}
               </button>
             ))}
           </div>
@@ -299,9 +329,9 @@ export default function EditStore() {
                         type="text"
                         name="lineUserId"
                         value={store.lineUserId || ''}
-                        onChange={handleInputChange}
-                        className="w-full px-3 py-2 border rounded bg-gray-50 font-mono text-xs sm:text-sm break-all"
+                        className="w-full px-3 py-2 border rounded bg-gray-100 font-mono text-xs sm:text-sm break-all cursor-not-allowed"
                         readOnly
+                        disabled
                       />
                     </div>
                     <label className="flex items-center">
@@ -317,6 +347,21 @@ export default function EditStore() {
                     <div className="text-sm text-gray-600">
                       <p>登録解除する場合は、LINE User IDを削除して保存してください。</p>
                     </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (confirm('LINE連携を解除しますか？')) {
+                          setStore({ 
+                            ...store, 
+                            lineUserId: '',
+                            lineManagerActive: false 
+                          });
+                        }
+                      }}
+                      className="mt-2 text-red-600 hover:text-red-700 text-sm underline"
+                    >
+                      LINE連携を解除
+                    </button>
                   </div>
                 )}
               </div>
@@ -419,6 +464,69 @@ export default function EditStore() {
               >
                 メニュー編集ページへ
               </Link>
+            </div>
+          )}
+
+          {/* スタッフ管理タブ */}
+          {activeTab === 'staff' && (
+            <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
+              <h2 className="text-lg sm:text-xl font-bold mb-4">スタッフ管理</h2>
+              
+              {/* スタッフコメント管理 */}
+              <div className="mb-6 p-4 bg-blue-50 rounded">
+                <h3 className="font-semibold mb-2">スタッフコメント</h3>
+                <p className="text-sm text-gray-600 mb-3">
+                  スタッフから投稿されたコメントの履歴管理ができます。
+                </p>
+                <Link 
+                  href={`/admin/stores/${store._id}/staff-comments`}
+                  className="inline-block bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                >
+                  コメント履歴を見る
+                </Link>
+                {store.staffComments && store.staffComments.length > 0 && (
+                  <span className="ml-2 text-sm text-gray-600">
+                    （全{store.staffComments.length}件）
+                  </span>
+                )}
+              </div>
+
+              {/* 登録済みスタッフ一覧 */}
+              <div>
+                <h3 className="font-semibold mb-3">登録済みスタッフ</h3>
+                {store.staffMembers && store.staffMembers.length > 0 ? (
+                  <div className="space-y-3">
+                    {store.staffMembers.map((staff, index) => (
+                      <div key={index} className="border rounded p-3 flex items-center justify-between">
+                        <div>
+                          <p className="font-medium">{staff.name}</p>
+                          <p className="text-sm text-gray-600">{staff.role}</p>
+                          <p className="text-xs text-gray-500">登録日: {new Date(staff.addedAt).toLocaleDateString('ja-JP')}</p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className={`px-2 py-1 rounded text-xs ${
+                            staff.isActive ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+                          }`}>
+                            {staff.isActive ? '有効' : '無効'}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-gray-500">スタッフが登録されていません</p>
+                )}
+              </div>
+
+              {/* スタッフ追加案内 */}
+              <div className="mt-6 p-4 bg-yellow-50 rounded">
+                <p className="text-sm">
+                  <strong>スタッフの追加方法：</strong><br />
+                  1. <Link href="/admin/line-setup" className="text-blue-600 underline">共通QRコード</Link>からLINE友だち追加<br />
+                  2. 店舗と役職を選択して自動登録<br />
+                  3. このページで名前を編集可能
+                </p>
+              </div>
             </div>
           )}
 

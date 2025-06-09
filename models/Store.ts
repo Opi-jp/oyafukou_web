@@ -145,6 +145,58 @@ const StoreSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   },
+  
+  // スタッフ管理（複数スタッフ対応）
+  staffMembers: [{
+    lineUserId: String,
+    name: String,
+    role: {
+      type: String,
+      enum: ['店長', 'マネージャー', 'スタッフ', 'アルバイト'],
+      default: 'スタッフ'
+    },
+    photo: String,
+    isActive: {
+      type: Boolean,
+      default: true
+    },
+    addedAt: {
+      type: Date,
+      default: Date.now
+    }
+  }],
+  
+  // スタッフコメント（承認待ち含む）
+  staffComments: [{
+    staffLineUserId: String,
+    staffName: String,
+    staffRole: String,
+    staffPhoto: String,
+    comment: String,
+    isApproved: {
+      type: Boolean,
+      default: false
+    },
+    isActive: {
+      type: Boolean,
+      default: true
+    },
+    createdAt: {
+      type: Date,
+      default: Date.now
+    }
+  }],
+  
+  // 現在表示中のコメント
+  activeStaffComment: {
+    staffLineUserId: String,
+    staffName: String,
+    staffRole: String,
+    staffPhoto: String,
+    comment: String,
+    updatedAt: Date
+  },
+  
   createdAt: {
     type: Date,
     default: Date.now
