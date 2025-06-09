@@ -12,10 +12,10 @@ async function connectToDatabase(): Promise<Db> {
 // DELETE: マネージャーを削除
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
     
     if (!ObjectId.isValid(id)) {
       return NextResponse.json(
@@ -49,10 +49,10 @@ export async function DELETE(
 // PATCH: マネージャー情報を部分更新
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
     const body = await request.json();
     
     if (!ObjectId.isValid(id)) {

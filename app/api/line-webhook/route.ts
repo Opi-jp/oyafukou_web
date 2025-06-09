@@ -3,13 +3,8 @@ import * as line from '@line/bot-sdk';
 import { MongoClient } from 'mongodb';
 import { put } from '@vercel/blob';
 
-// LINE設定
-const config = {
-  channelAccessToken: process.env.LINE_CHANNEL_ACCESS_TOKEN!,
-  channelSecret: process.env.LINE_CHANNEL_SECRET!,
-};
-
-const client = new line.Client(config);
+// クライアントの初期化は実行時に行う
+let client: line.messagingApi.MessagingApiClient;
 
 
 // MongoDB接続
@@ -49,11 +44,24 @@ async function updateManagerComment(storeId: string, comment: string) {
 
 export async function POST(request: NextRequest) {
   try {
+    // 環境変数のチェック
+    if (!process.env.LINE_CHANNEL_ACCESS_TOKEN || !process.env.LINE_CHANNEL_SECRET) {
+      console.error('LINE credentials not configured');
+      return NextResponse.json({ error: 'Service not configured' }, { status: 503 });
+    }
+
+    // クライアントの初期化
+    if (!client) {
+      client = new line.messagingApi.MessagingApiClient({
+        channelAccessToken: process.env.LINE_CHANNEL_ACCESS_TOKEN,
+      });
+    }
+
     // 署名検証
     const body = await request.text();
     const signature = request.headers.get('x-line-signature');
     
-    if (!signature || !line.validateSignature(body, config.channelSecret, signature)) {
+    if (!signature || !line.validateSignature(body, process.env.LINE_CHANNEL_SECRET, signature)) {
       return NextResponse.json({ error: 'Invalid signature' }, { status: 403 });
     }
 
@@ -70,9 +78,12 @@ export async function POST(request: NextRequest) {
       
       if (!store) {
         // 未登録ユーザーへの返信
-        await client.replyMessage(event.replyToken, {
-          type: 'text',
-          text: '申し訳ございません。あなたのLINEアカウントは登録されていません。\n管理者にお問い合わせください。'
+        await client.replyMessage({
+          replyToken: event.replyToken,
+          messages: [{
+            type: 'text',
+            text: '申し訳ございません。あなたのLINEアカウントは登録されていません。\n管理者にお問い合わせください。'
+          }]
         });
         continue;
       }
@@ -86,21 +97,27 @@ export async function POST(request: NextRequest) {
 
         if (success) {
           // 成功メッセージ
-          await client.replyMessage(event.replyToken, [
-            {
-              type: 'text',
-              text: `✅ ${store.name}の店長コメントを更新しました！`
-            },
-            {
-              type: 'text',
-              text: `更新内容:\n${messageText}`
-            }
-          ]);
+          await client.replyMessage({
+            replyToken: event.replyToken,
+            messages: [
+              {
+                type: 'text',
+                text: `✅ ${store.name}の店長コメントを更新しました！`
+              },
+              {
+                type: 'text',
+                text: `更新内容:\n${messageText}`
+              }
+            ]
+          });
         } else {
           // エラーメッセージ
-          await client.replyMessage(event.replyToken, {
-            type: 'text',
-            text: '❌ 更新に失敗しました。もう一度お試しください。'
+          await client.replyMessage({
+            replyToken: event.replyToken,
+            messages: [{
+              type: 'text',
+              text: '❌ 更新に失敗しました。もう一度お試しください。'
+            }]
           });
         }
       }
@@ -108,12 +125,15 @@ export async function POST(request: NextRequest) {
       else if (event.message.type === 'image') {
         try {
           // LINE から画像を取得
-          const stream = await client.getMessageContent(event.message.id);
-          const chunks: Buffer[] = [];
+          const blobClient = new line.messagingApi.MessagingApiBlobClient({
+            channelAccessToken: process.env.LINE_CHANNEL_ACCESS_TOKEN,
+          });
+          const stream = await blobClient.getMessageContent(event.message.id);
+          const chunks: Uint8Array[] = [];
           
           // ストリームからデータを読み取る
           for await (const chunk of stream) {
-            chunks.push(Buffer.from(chunk));
+            chunks.push(chunk);
           }
           const buffer = Buffer.concat(chunks);
           
@@ -138,23 +158,32 @@ export async function POST(request: NextRequest) {
           );
 
           // 成功メッセージ
-          await client.replyMessage(event.replyToken, {
-            type: 'text',
-            text: `✅ ${store.name}のマネージャー写真を更新しました！`
+          await client.replyMessage({
+            replyToken: event.replyToken,
+            messages: [{
+              type: 'text',
+              text: `✅ ${store.name}のマネージャー写真を更新しました！`
+            }]
           });
         } catch (error) {
           console.error('画像アップロードエラー:', error);
-          await client.replyMessage(event.replyToken, {
-            type: 'text',
-            text: '❌ 画像のアップロードに失敗しました。もう一度お試しください。'
+          await client.replyMessage({
+            replyToken: event.replyToken,
+            messages: [{
+              type: 'text',
+              text: '❌ 画像のアップロードに失敗しました。もう一度お試しください。'
+            }]
           });
         }
       }
       // その他のメッセージタイプ
       else {
-        await client.replyMessage(event.replyToken, {
-          type: 'text',
-          text: 'テキストメッセージまたは画像を送信してください。\n\nテキスト: 店長コメントを更新\n画像: マネージャー写真を更新'
+        await client.replyMessage({
+          replyToken: event.replyToken,
+          messages: [{
+            type: 'text',
+            text: 'テキストメッセージまたは画像を送信してください。\n\nテキスト: 店長コメントを更新\n画像: マネージャー写真を更新'
+          }]
         });
       }
     }
