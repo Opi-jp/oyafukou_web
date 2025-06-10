@@ -43,6 +43,97 @@ export async function PUT(
     const { id } = await params;
     const body = await request.json();
     
+    // スタッフ本登録の処理
+    if (body.updateType === 'completeStaffRegistration') {
+      const { staffData } = body;
+      
+      // MongoDBの直接操作が必要
+      const { MongoClient, ObjectId } = await import('mongodb');
+      const client = new MongoClient(process.env.MONGODB_URI!);
+      await client.connect();
+      
+      const db = client.db('parent_site_admin');
+      
+      // スタッフ情報を更新（仮登録→本登録）
+      const result = await db.collection('stores').updateOne(
+        { 
+          _id: new ObjectId(id),
+          'staffMembers.lineUserId': staffData.lineUserId 
+        },
+        { 
+          $set: { 
+            'staffMembers.$.name': staffData.name,
+            'staffMembers.$.photo': staffData.photo,
+            'staffMembers.$.phone': staffData.phone,
+            'staffMembers.$.email': staffData.email,
+            'staffMembers.$.isTemporary': false,
+            'staffMembers.$.isActive': true,
+            'staffMembers.$.registeredAt': new Date(),
+            lastUpdated: new Date()
+          } 
+        }
+      );
+      
+      await client.close();
+      
+      if (result.modifiedCount === 0) {
+        return NextResponse.json(
+          { error: 'スタッフ情報の更新に失敗しました' },
+          { status: 400 }
+        );
+      }
+      
+      // 更新後の店舗情報を取得
+      const updatedStore = await Store.findById(id);
+      
+      // Slack通知
+      const slackMessage = createStoreUpdateMessage(
+        updatedStore.name,
+        'update',
+        'スタッフ本登録',
+        [`${staffData.name}（${staffData.role || 'スタッフ'}）が本登録を完了`]
+      );
+      await sendSlackNotification(slackMessage);
+      
+      return NextResponse.json(updatedStore);
+    }
+    
+    // スタッフ名更新の処理
+    if (body.updateType === 'updateStaffName') {
+      const { lineUserId, name } = body;
+      
+      const { MongoClient, ObjectId } = await import('mongodb');
+      const client = new MongoClient(process.env.MONGODB_URI!);
+      await client.connect();
+      
+      const db = client.db('parent_site_admin');
+      
+      const result = await db.collection('stores').updateOne(
+        { 
+          _id: new ObjectId(id),
+          'staffMembers.lineUserId': lineUserId 
+        },
+        { 
+          $set: { 
+            'staffMembers.$.name': name,
+            lastUpdated: new Date()
+          } 
+        }
+      );
+      
+      await client.close();
+      
+      if (result.modifiedCount === 0) {
+        return NextResponse.json(
+          { error: 'スタッフ名の更新に失敗しました' },
+          { status: 400 }
+        );
+      }
+      
+      const updatedStore = await Store.findById(id);
+      return NextResponse.json(updatedStore);
+    }
+    
     // 更新前の店舗情報を取得（変更内容の比較用）
     const oldStore = await Store.findById(id);
     
