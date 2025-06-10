@@ -6,7 +6,7 @@ import { QRCodeSVG } from 'qrcode.react';
 
 export default function LineSetupPage() {
   const [showInstructions, setShowInstructions] = useState(false);
-  const lineAddUrl = 'https://line.me/R/ti/p/@983koeyt';
+  const lineAddUrl = 'https://line.me/R/ti/p/@577lunkr';
 
   return (
     <div className="min-h-screen bg-gray-100 text-gray-900">
