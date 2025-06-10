@@ -130,8 +130,12 @@ export default function Admin() {
       <main className="max-w-7xl mx-auto p-4 sm:p-6">
         {/* 管理メニュー */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <Link href="/admin/twitter-accounts" className="bg-white rounded-lg shadow-md p-4 sm:p-6 hover:shadow-lg transition-shadow">
+            <h3 className="text-lg font-bold text-blue-400 mb-2">X(Twitter)管理</h3>
+            <p className="text-sm text-gray-600">Xアカウントの登録と投稿管理</p>
+          </Link>
           <Link href="/admin/line-managers" className="bg-white rounded-lg shadow-md p-4 sm:p-6 hover:shadow-lg transition-shadow">
-            <h3 className="text-lg font-bold text-blue-600 mb-2">LINE連携管理</h3>
+            <h3 className="text-lg font-bold text-green-600 mb-2">LINE連携管理</h3>
             <p className="text-sm text-gray-600">店長のLINEアカウントを管理し、コメント自動更新を設定</p>
           </Link>
           <Link href="/admin/line-setup" className="bg-white rounded-lg shadow-md p-4 sm:p-6 hover:shadow-lg transition-shadow">
