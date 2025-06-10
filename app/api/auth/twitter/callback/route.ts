@@ -25,8 +25,8 @@ export async function GET(request: NextRequest) {
     
     // アクセストークンを取得
     const client = new TwitterApi({
-      appKey: process.env.TWITTER_API_KEY!,
-      appSecret: process.env.TWITTER_API_SECRET!,
+      appKey: process.env.TWITTER_CONSUMER_KEY!,
+      appSecret: process.env.TWITTER_CONSUMER_SECRET!,
       accessToken: oauth_token,
       accessSecret: savedTokenSecret,
     });

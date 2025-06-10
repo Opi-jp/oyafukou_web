@@ -2,8 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { TwitterApi } from 'twitter-api-v2';
 
 // OAuth 1.0a コールバックURL
-const CALLBACK_URL = process.env.NEXTAUTH_URL 
-  ? `${process.env.NEXTAUTH_URL}/api/auth/twitter/callback`
+const CALLBACK_URL = process.env.NODE_ENV === 'production'
+  ? 'https://oyafukou-web.vercel.app/api/auth/twitter/callback'
   : 'http://localhost:3000/api/auth/twitter/callback';
 
 export async function GET(request: NextRequest) {
@@ -15,8 +15,8 @@ export async function GET(request: NextRequest) {
     
     // OAuth 1.0a認証フローを開始
     const client = new TwitterApi({
-      appKey: process.env.TWITTER_API_KEY!,
-      appSecret: process.env.TWITTER_API_SECRET!,
+      appKey: process.env.TWITTER_CONSUMER_KEY!,
+      appSecret: process.env.TWITTER_CONSUMER_SECRET!,
     });
     
     // リクエストトークンを取得
