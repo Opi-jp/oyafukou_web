@@ -380,141 +380,141 @@ export async function POST(request: NextRequest) {
             continue;
           }
 
-      // テキストメッセージの処理
-      if (event.message.type === 'text') {
-        const messageText = event.message.text;
+          // テキストメッセージの処理
+          if (event.message.type === 'text') {
+            const messageText = event.message.text;
 
-        // 旧システム（店舗管理者）の場合
-        if (store) {
-          const success = await updateManagerComment(store._id.toString(), messageText);
+            // 旧システム（店舗管理者）の場合
+            if (store) {
+              const success = await updateManagerComment(store._id.toString(), messageText);
 
-          if (success) {
-            await client.replyMessage({
-              replyToken: event.replyToken,
-              messages: [
-                {
-                  type: 'text',
-                  text: `✅ ${store.name}の店長コメントを更新しました！`
-                },
-                {
-                  type: 'text',
-                  text: `更新内容:\n${messageText}`
-                }
-              ]
-            });
-            
-            const slackMessage = createLineUpdateMessage(
-              store.name,
-              store.managerName || 'マネージャー',
-              'comment',
-              messageText
-            );
-            await sendSlackNotification(slackMessage);
-          } else {
-            await client.replyMessage({
-              replyToken: event.replyToken,
-              messages: [{
-                type: 'text',
-                text: '❌ 更新に失敗しました。もう一度お試しください。'
-              }]
-            });
-          }
-        }
-        // 新システム（スタッフメンバー）の場合
-        else if (staffInfo) {
-          const { store: staffStore, staff } = staffInfo;
-          console.log('=== Staff Comment Update ===');
-          console.log('Store:', staffStore.name);
-          console.log('Staff:', staff.name, `(${staff.role})`);
-          console.log('Comment:', messageText);
-          
-          try {
-            // スタッフコメントを追加して即時公開
-            const uri = process.env.MONGODB_URI!;
-            const mongoClient = new MongoClient(uri);
-            await mongoClient.connect();
-            
-            const db = mongoClient.db('parent_site_admin');
-            const { ObjectId } = await import('mongodb');
-            
-            // コメントを履歴に追加
-            const updateResult = await db.collection('stores').updateOne(
-            { _id: new ObjectId(staffStore._id) },
-            {
-              $push: {
-                staffComments: {
-                  staffLineUserId: lineUserId,
-                  staffName: staff.name,
-                  staffRole: staff.role,
-                  staffPhoto: staff.photo || '',
-                  comment: messageText,
-                  isApproved: true,
-                  isActive: true,
-                  createdAt: new Date()
-                } as any
-              } as any,
-              $set: { 
-                // アクティブコメントとして即時設定
-                activeStaffComment: {
-                  staffLineUserId: lineUserId,
-                  staffName: staff.name,
-                  staffRole: staff.role,
-                  staffPhoto: staff.photo || '',
-                  comment: messageText,
-                  updatedAt: new Date()
-                },
-                lastUpdated: new Date() 
+              if (success) {
+                await client.replyMessage({
+                  replyToken: event.replyToken,
+                  messages: [
+                    {
+                      type: 'text',
+                      text: `✅ ${store.name}の店長コメントを更新しました！`
+                    },
+                    {
+                      type: 'text',
+                      text: `更新内容:\n${messageText}`
+                    }
+                  ]
+                });
+                
+                const slackMessage = createLineUpdateMessage(
+                  store.name,
+                  store.managerName || 'マネージャー',
+                  'comment',
+                  messageText
+                );
+                await sendSlackNotification(slackMessage);
+              } else {
+                await client.replyMessage({
+                  replyToken: event.replyToken,
+                  messages: [{
+                    type: 'text',
+                    text: '❌ 更新に失敗しました。もう一度お試しください。'
+                  }]
+                });
               }
             }
-          );
-          
-          console.log('Update result:', { modifiedCount: updateResult.modifiedCount });
-          
-          await mongoClient.close();
-          
-          if (updateResult.modifiedCount > 0) {
-            await client.replyMessage({
-            replyToken: event.replyToken,
-            messages: [{
-              type: 'text',
-              text: `✅ コメントを更新しました！\n\n投稿者：${staff.name}（${staff.role}）\n内容：${messageText}\n\n※ウェブサイトに反映されました`
-            }]
-          });
-          
-            // Slack通知
-            const slackMessage = createLineUpdateMessage(
-              staffStore.name,
-              `${staff.name}（${staff.role}）`,
-              'comment',
-              messageText
-            );
-            await sendSlackNotification(slackMessage);
-          } else {
-            console.error('Failed to update comment');
-            await client.replyMessage({
-              replyToken: event.replyToken,
-              messages: [{
-                type: 'text',
-                text: '❌ コメントの更新に失敗しました。もう一度お試しください。'
-              }]
-            });
+            // 新システム（スタッフメンバー）の場合
+            else if (staffInfo) {
+              const { store: staffStore, staff } = staffInfo;
+              console.log('=== Staff Comment Update ===');
+              console.log('Store:', staffStore.name);
+              console.log('Staff:', staff.name, `(${staff.role})`);
+              console.log('Comment:', messageText);
+              
+              try {
+                // スタッフコメントを追加して即時公開
+                const uri = process.env.MONGODB_URI!;
+                const mongoClient = new MongoClient(uri);
+                await mongoClient.connect();
+                
+                const db = mongoClient.db('parent_site_admin');
+                const { ObjectId } = await import('mongodb');
+                
+                // コメントを履歴に追加
+                const updateResult = await db.collection('stores').updateOne(
+                  { _id: new ObjectId(staffStore._id) },
+                  {
+                    $push: {
+                      staffComments: {
+                        staffLineUserId: lineUserId,
+                        staffName: staff.name,
+                        staffRole: staff.role,
+                        staffPhoto: staff.photo || '',
+                        comment: messageText,
+                        isApproved: true,
+                        isActive: true,
+                        createdAt: new Date()
+                      } as any
+                    } as any,
+                    $set: { 
+                      // アクティブコメントとして即時設定
+                      activeStaffComment: {
+                        staffLineUserId: lineUserId,
+                        staffName: staff.name,
+                        staffRole: staff.role,
+                        staffPhoto: staff.photo || '',
+                        comment: messageText,
+                        updatedAt: new Date()
+                      },
+                      lastUpdated: new Date() 
+                    }
+                  }
+                );
+                
+                console.log('Update result:', { modifiedCount: updateResult.modifiedCount });
+                
+                await mongoClient.close();
+                
+                if (updateResult.modifiedCount > 0) {
+                  await client.replyMessage({
+                    replyToken: event.replyToken,
+                    messages: [{
+                      type: 'text',
+                      text: `✅ コメントを更新しました！\n\n投稿者：${staff.name}（${staff.role}）\n内容：${messageText}\n\n※ウェブサイトに反映されました`
+                    }]
+                  });
+                  
+                  // Slack通知
+                  const slackMessage = createLineUpdateMessage(
+                    staffStore.name,
+                    `${staff.name}（${staff.role}）`,
+                    'comment',
+                    messageText
+                  );
+                  await sendSlackNotification(slackMessage);
+                } else {
+                  console.error('Failed to update comment');
+                  await client.replyMessage({
+                    replyToken: event.replyToken,
+                    messages: [{
+                      type: 'text',
+                      text: '❌ コメントの更新に失敗しました。もう一度お試しください。'
+                    }]
+                  });
+                }
+              } catch (error) {
+                console.error('Error updating staff comment:', error);
+                await client.replyMessage({
+                  replyToken: event.replyToken,
+                  messages: [{
+                    type: 'text',
+                    text: '❌ エラーが発生しました。もう一度お試しください。'
+                  }]
+                });
+              }
+            }
           }
-          } catch (error) {
-            console.error('Error updating staff comment:', error);
-            await client.replyMessage({
-              replyToken: event.replyToken,
-              messages: [{
-                type: 'text',
-                text: '❌ エラーが発生しました。もう一度お試しください。'
-              }]
-            });
-          }
-        }
-      }
-      // 画像メッセージの処理
-      else if (event.message.type === 'image') {
-        // 新システム（スタッフメンバー）の場合
-        if (staffInfo) {
+          // 画像メッセージの処理
+          else if (event.message.type === 'image') {
+            // 新システム（スタッフメンバー）の場合
+            if (staffInfo) {
           const { store: staffStore, staff } = staffInfo;
           
           try {
