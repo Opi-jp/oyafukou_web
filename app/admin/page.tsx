@@ -274,22 +274,28 @@ export default function Admin() {
                     </div>
                     <p className="text-sm text-gray-600">{store.category}</p>
                     <p className="text-sm text-gray-600 mb-3">{store.openingHours}</p>
-                    <div className="flex gap-2">
+                    <div className="grid grid-cols-2 gap-2">
                       <Link
                         href={`/admin/stores/${store._id}`}
-                        className="flex-1 text-center bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
+                        className="text-center bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
                       >
                         編集
                       </Link>
                       <Link
                         href={`/admin/stores/${store._id}/menus`}
-                        className="flex-1 text-center bg-green-600 text-white py-2 rounded hover:bg-green-700"
+                        className="text-center bg-green-600 text-white py-2 rounded hover:bg-green-700"
                       >
                         メニュー
                       </Link>
+                      <Link
+                        href={`/admin/stores/${store._id}/staff-comments`}
+                        className="text-center bg-purple-600 text-white py-2 rounded hover:bg-purple-700"
+                      >
+                        スタッフ
+                      </Link>
                       <button
                         onClick={() => handleDelete(store._id, store.name)}
-                        className="px-4 bg-red-600 text-white py-2 rounded hover:bg-red-700"
+                        className="bg-red-600 text-white py-2 rounded hover:bg-red-700"
                       >
                         削除
                       </button>
@@ -351,6 +357,12 @@ export default function Admin() {
                             className="text-green-600 hover:text-green-900 mr-3"
                           >
                             メニュー
+                          </Link>
+                          <Link
+                            href={`/admin/stores/${store._id}/staff-comments`}
+                            className="text-purple-600 hover:text-purple-900 mr-3"
+                          >
+                            スタッフ
                           </Link>
                           <button
                             onClick={() => handleDelete(store._id, store.name)}

@@ -472,23 +472,25 @@ export default function EditStore() {
             <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
               <h2 className="text-lg sm:text-xl font-bold mb-4">スタッフ管理</h2>
               
-              {/* スタッフコメント管理 */}
+              {/* スタッフ管理ボタン */}
               <div className="mb-6 p-4 bg-blue-50 rounded">
-                <h3 className="font-semibold mb-2">スタッフコメント</h3>
+                <h3 className="font-semibold mb-2">スタッフ管理</h3>
                 <p className="text-sm text-gray-600 mb-3">
-                  スタッフから投稿されたコメントの履歴管理ができます。
+                  スタッフの詳細情報確認、編集、コメント履歴の管理ができます。
                 </p>
-                <Link 
-                  href={`/admin/stores/${store._id}/staff-comments`}
-                  className="inline-block bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-                >
-                  コメント履歴を見る
-                </Link>
-                {store.staffComments && store.staffComments.length > 0 && (
-                  <span className="ml-2 text-sm text-gray-600">
-                    （全{store.staffComments.length}件）
-                  </span>
-                )}
+                <div className="flex flex-wrap gap-2">
+                  <Link 
+                    href={`/admin/stores/${store._id}/staff-comments`}
+                    className="inline-block bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                  >
+                    スタッフ管理画面へ
+                  </Link>
+                  {store.staffComments && store.staffComments.length > 0 && (
+                    <span className="text-sm text-gray-600 self-center">
+                      （コメント{store.staffComments.length}件）
+                    </span>
+                  )}
+                </div>
               </div>
 
               {/* 登録済みスタッフ一覧 */}
