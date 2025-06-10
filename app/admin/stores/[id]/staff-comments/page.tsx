@@ -51,6 +51,12 @@ export default function StaffCommentsPage() {
   const [store, setStore] = useState<Store | null>(null);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
+  const [editingStaff, setEditingStaff] = useState<StaffMember | null>(null);
+  const [editForm, setEditForm] = useState({
+    name: '',
+    phone: '',
+    email: ''
+  });
 
   useEffect(() => {
     fetchStore();
@@ -101,13 +107,17 @@ export default function StaffCommentsPage() {
     }
   };
 
-  const handleUpdateStaffInfo = async (staff: StaffMember) => {
-    // 編集ダイアログを表示（簡易版）
-    const newName = prompt('名前', staff.name);
-    if (!newName) return;
-    
-    const newPhone = prompt('電話番号', staff.phone || '');
-    const newEmail = prompt('メールアドレス', staff.email || '');
+  const handleEditStaff = (staff: StaffMember) => {
+    setEditingStaff(staff);
+    setEditForm({
+      name: staff.name,
+      phone: staff.phone || '',
+      email: staff.email || ''
+    });
+  };
+
+  const handleUpdateStaffInfo = async () => {
+    if (!editingStaff) return;
 
     setUpdating(true);
     try {
@@ -116,17 +126,18 @@ export default function StaffCommentsPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           updateType: 'updateStaffInfo',
-          lineUserId: staff.lineUserId,
+          lineUserId: editingStaff.lineUserId,
           staffData: {
-            name: newName,
-            phone: newPhone,
-            email: newEmail
+            name: editForm.name,
+            phone: editForm.phone,
+            email: editForm.email
           }
         })
       });
 
       if (!res.ok) throw new Error('更新に失敗しました');
       await fetchStore();
+      setEditingStaff(null);
       alert('スタッフ情報を更新しました');
     } catch (error) {
       console.error('Error:', error);
@@ -248,7 +259,7 @@ export default function StaffCommentsPage() {
                         ) : (
                           <>
                             <button
-                              onClick={() => handleUpdateStaffInfo(staff)}
+                              onClick={() => handleEditStaff(staff)}
                               className="text-sm text-blue-600 hover:underline"
                               disabled={updating}
                             >
@@ -353,6 +364,74 @@ export default function StaffCommentsPage() {
           </div>
         </div>
       </div>
+
+      {/* 編集モーダル */}
+      {editingStaff && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full">
+            <h3 className="text-lg font-bold mb-4">スタッフ情報を編集</h3>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">名前</label>
+                <input
+                  type="text"
+                  value={editForm.name}
+                  onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                  className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="山田 太郎"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium mb-1">電話番号</label>
+                <input
+                  type="tel"
+                  value={editForm.phone}
+                  onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })}
+                  className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="090-1234-5678"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium mb-1">メールアドレス</label>
+                <input
+                  type="email"
+                  value={editForm.email}
+                  onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
+                  className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="example@email.com"
+                />
+              </div>
+              
+              <div className="bg-gray-50 p-3 rounded">
+                <p className="text-sm text-gray-600">
+                  <strong>役職：</strong>{editingStaff.role}<br />
+                  <strong>LINE ID：</strong><span className="font-mono text-xs">{editingStaff.lineUserId}</span>
+                </p>
+              </div>
+            </div>
+            
+            <div className="flex gap-2 mt-6">
+              <button
+                onClick={handleUpdateStaffInfo}
+                disabled={updating || !editForm.name}
+                className="flex-1 bg-blue-600 text-white py-2 rounded hover:bg-blue-700 disabled:bg-gray-400"
+              >
+                {updating ? '更新中...' : '更新'}
+              </button>
+              <button
+                onClick={() => setEditingStaff(null)}
+                disabled={updating}
+                className="flex-1 bg-gray-500 text-white py-2 rounded hover:bg-gray-600"
+              >
+                キャンセル
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }
