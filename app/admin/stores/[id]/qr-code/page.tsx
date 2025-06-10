@@ -31,7 +31,7 @@ export default function StoreQRCodePage() {
       setStore(storeData);
 
       // シンプルな友だち追加URL（ベーシックID使用）
-      const lineUrl = 'https://line.me/R/ti/p/@983koeyt';
+      const lineUrl = 'https://line.me/R/ti/p/@577lunkr';
 
       // QRコードを生成
       const qrCodeDataUrl = await QRCode.toDataURL(lineUrl, {
