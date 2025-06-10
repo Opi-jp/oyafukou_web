@@ -52,7 +52,7 @@ export default function StaffCommentsPage() {
 
   useEffect(() => {
     fetchStore();
-  }, [storeId]);
+  }, [storeId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const fetchStore = async () => {
     try {

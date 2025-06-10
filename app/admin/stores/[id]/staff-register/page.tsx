@@ -45,7 +45,7 @@ export default function StaffRegisterPage() {
       return;
     }
     fetchStore();
-  }, [lineUserId, role]);
+  }, [lineUserId, role, router]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const fetchStore = async () => {
     try {
@@ -188,9 +188,9 @@ export default function StaffRegisterPage() {
                   プロフィール写真
                 </label>
                 <ImageUpload
-                  currentImage={formData.photo}
-                  onImageChange={(url) => setFormData({ ...formData, photo: url })}
-                  label="写真をアップロード"
+                  value={formData.photo}
+                  onChange={(url) => setFormData({ ...formData, photo: url })}
+                  placeholder="写真をアップロード"
                 />
                 <p className="text-sm text-gray-600 mt-1">
                   ※LINEから写真を送信して更新することもできます

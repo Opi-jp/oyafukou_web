@@ -490,7 +490,7 @@ export async function POST(request: NextRequest) {
                     storeName,
                     `${profile.displayName}（${role}）`,
                     'comment',
-                    isUpdate ? `スタッフ情報更新: ${role}` : `新規スタッフ登録: ${role}`
+                    result.message === '役職を更新しました' ? `スタッフ情報更新: ${role}` : `新規スタッフ登録: ${role}`
                   );
                   await sendSlackNotification(slackMessage);
                 } else {
