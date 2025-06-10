@@ -22,7 +22,8 @@
     "qrcode": "^1.5.4",
     "qrcode.react": "^4.2.0",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "twitter-api-v2": "^1.23.2"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

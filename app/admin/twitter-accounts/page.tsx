@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Header from '@/components/Header';
 
@@ -16,23 +17,44 @@ interface TwitterAccount {
 }
 
 export default function TwitterAccountsPage() {
+  const searchParams = useSearchParams();
   const [accounts, setAccounts] = useState<TwitterAccount[]>([]);
   const [loading, setLoading] = useState(true);
   const [showAddForm, setShowAddForm] = useState(false);
-  const [formData, setFormData] = useState({
-    twitterHandle: '',
-    displayName: '',
-    accessToken: '',
-    accessTokenSecret: '',
-    accountType: 'store' as 'official' | 'store',
-    storeId: ''
-  });
+  const [selectedStoreId, setSelectedStoreId] = useState('');
+  const [selectedAccountType, setSelectedAccountType] = useState<'official' | 'store'>('store');
   const [stores, setStores] = useState<Array<{ _id: string; name: string }>>([]);
+  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   useEffect(() => {
     fetchAccounts();
     fetchStores();
-  }, []);
+    
+    // URLパラメータからメッセージを表示
+    const success = searchParams.get('success');
+    const error = searchParams.get('error');
+    
+    if (success === 'true') {
+      setMessage({ type: 'success', text: 'Xアカウントを連携しました！' });
+    } else if (error) {
+      const errorMessages: { [key: string]: string } = {
+        auth_failed: '認証に失敗しました',
+        missing_params: 'パラメータが不足しています',
+        token_mismatch: 'トークンが一致しません',
+        login_failed: 'ログインに失敗しました',
+        callback_failed: 'コールバック処理に失敗しました'
+      };
+      setMessage({ 
+        type: 'error', 
+        text: errorMessages[error] || 'エラーが発生しました' 
+      });
+    }
+    
+    // メッセージを5秒後に消す
+    if (success || error) {
+      setTimeout(() => setMessage(null), 5000);
+    }
+  }, [searchParams]);
 
   const fetchAccounts = async () => {
     try {
@@ -56,33 +78,16 @@ export default function TwitterAccountsPage() {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleTwitterAuth = () => {
+    const params = new URLSearchParams({
+      type: selectedAccountType
+    });
     
-    try {
-      const res = await fetch('/api/twitter-accounts', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
-      });
-
-      if (!res.ok) throw new Error('登録に失敗しました');
-      
-      await fetchAccounts();
-      setShowAddForm(false);
-      setFormData({
-        twitterHandle: '',
-        displayName: '',
-        accessToken: '',
-        accessTokenSecret: '',
-        accountType: 'store',
-        storeId: ''
-      });
-      alert('アカウントを登録しました');
-    } catch (error) {
-      console.error('Error:', error);
-      alert('登録に失敗しました');
+    if (selectedAccountType === 'store' && selectedStoreId) {
+      params.append('storeId', selectedStoreId);
     }
+    
+    window.location.href = `/api/auth/twitter?${params.toString()}`;
   };
 
   const toggleActive = async (id: string, isActive: boolean) => {
@@ -125,6 +130,12 @@ export default function TwitterAccountsPage() {
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
             <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">X(Twitter)アカウント管理</h1>
             <div className="flex gap-2">
+              <Link
+                href="/admin/social-posts"
+                className="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700"
+              >
+                投稿管理
+              </Link>
               <button
                 onClick={() => setShowAddForm(!showAddForm)}
                 className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
@@ -140,97 +151,77 @@ export default function TwitterAccountsPage() {
             </div>
           </div>
 
+          {/* メッセージ表示 */}
+          {message && (
+            <div className={`mb-4 p-4 rounded ${
+              message.type === 'success' 
+                ? 'bg-green-100 text-green-800' 
+                : 'bg-red-100 text-red-800'
+            }`}>
+              {message.text}
+            </div>
+          )}
+
           {/* アカウント追加フォーム */}
           {showAddForm && (
             <div className="bg-white rounded-lg shadow p-6 mb-6">
-              <h2 className="text-xl font-semibold mb-4">新規アカウント登録</h2>
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <h2 className="text-xl font-semibold mb-4">新規アカウント連携</h2>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium mb-1">アカウントタイプ</label>
+                  <select
+                    value={selectedAccountType}
+                    onChange={(e) => setSelectedAccountType(e.target.value as 'official' | 'store')}
+                    className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="official">統合アカウント</option>
+                    <option value="store">店舗アカウント</option>
+                  </select>
+                </div>
+                
+                {selectedAccountType === 'store' && (
                   <div>
-                    <label className="block text-sm font-medium mb-1">Xハンドル名 *</label>
-                    <input
-                      type="text"
-                      value={formData.twitterHandle}
-                      onChange={(e) => setFormData({ ...formData, twitterHandle: e.target.value })}
-                      className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder="@なしで入力 (例: oyafukou_street)"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-1">表示名 *</label>
-                    <input
-                      type="text"
-                      value={formData.displayName}
-                      onChange={(e) => setFormData({ ...formData, displayName: e.target.value })}
-                      className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder="八丈島親不孝通り公式"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-1">アカウントタイプ *</label>
+                    <label className="block text-sm font-medium mb-1">関連店舗</label>
                     <select
-                      value={formData.accountType}
-                      onChange={(e) => setFormData({ ...formData, accountType: e.target.value as 'official' | 'store' })}
+                      value={selectedStoreId}
+                      onChange={(e) => setSelectedStoreId(e.target.value)}
                       className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                     >
-                      <option value="official">統合アカウント</option>
-                      <option value="store">店舗アカウント</option>
+                      <option value="">選択してください</option>
+                      {stores.map(store => (
+                        <option key={store._id} value={store._id}>{store.name}</option>
+                      ))}
                     </select>
                   </div>
-                  {formData.accountType === 'store' && (
-                    <div>
-                      <label className="block text-sm font-medium mb-1">関連店舗</label>
-                      <select
-                        value={formData.storeId}
-                        onChange={(e) => setFormData({ ...formData, storeId: e.target.value })}
-                        className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      >
-                        <option value="">選択してください</option>
-                        {stores.map(store => (
-                          <option key={store._id} value={store._id}>{store.name}</option>
-                        ))}
-                      </select>
-                    </div>
-                  )}
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-medium mb-1">Access Token *</label>
-                    <input
-                      type="text"
-                      value={formData.accessToken}
-                      onChange={(e) => setFormData({ ...formData, accessToken: e.target.value })}
-                      className="w-full px-3 py-2 border rounded font-mono text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      required
-                    />
-                  </div>
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-medium mb-1">Access Token Secret *</label>
-                    <input
-                      type="text"
-                      value={formData.accessTokenSecret}
-                      onChange={(e) => setFormData({ ...formData, accessTokenSecret: e.target.value })}
-                      className="w-full px-3 py-2 border rounded font-mono text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      required
-                    />
-                  </div>
+                )}
+                
+                <div className="pt-4">
+                  <button
+                    onClick={handleTwitterAuth}
+                    disabled={selectedAccountType === 'store' && !selectedStoreId}
+                    className="w-full bg-blue-400 text-white py-3 rounded-lg hover:bg-blue-500 disabled:bg-gray-400 flex items-center justify-center gap-2"
+                  >
+                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                    </svg>
+                    Xアカウントと連携
+                  </button>
                 </div>
+                
                 <div className="flex gap-2 justify-end">
                   <button
                     type="button"
-                    onClick={() => setShowAddForm(false)}
+                    onClick={() => {
+                      setShowAddForm(false);
+                      setSelectedStoreId('');
+                      setSelectedAccountType('store');
+                    }}
                     className="px-4 py-2 text-gray-600 hover:text-gray-800"
                   >
                     キャンセル
                   </button>
-                  <button
-                    type="submit"
-                    className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-                  >
-                    登録
-                  </button>
                 </div>
-              </form>
+              </div>
             </div>
           )}
 
@@ -300,13 +291,17 @@ export default function TwitterAccountsPage() {
 
           {/* 設定方法 */}
           <div className="mt-6 p-4 bg-blue-50 rounded">
-            <h3 className="font-semibold text-blue-900 mb-2">トークン取得方法</h3>
+            <h3 className="font-semibold text-blue-900 mb-2">X(Twitter)連携の設定方法</h3>
             <ol className="list-decimal list-inside text-sm text-blue-800 space-y-1">
-              <li>Twitter Developer Portalにアクセス</li>
-              <li>アプリケーションを作成（User authentication set upを有効化）</li>
-              <li>OAuth 1.0aの設定でRead and writeを選択</li>
-              <li>Access Token & Secretを生成</li>
+              <li>「アカウント追加」ボタンをクリック</li>
+              <li>アカウントタイプを選択（統合または店舗）</li>
+              <li>店舗アカウントの場合は関連店舗を選択</li>
+              <li>「Xアカウントと連携」ボタンをクリック</li>
+              <li>X(Twitter)にログインして連携を許可</li>
             </ol>
+            <p className="text-sm text-blue-700 mt-3">
+              ※事前にTwitter Developer Portalでアプリケーションの設定が必要です
+            </p>
           </div>
         </div>
       </div>

@@ -1,22 +1,4 @@
-import OAuth from 'oauth-1.0a';
-import crypto from 'crypto';
-import axios from 'axios';
-
-// Twitter API設定
-const TWITTER_API_KEY = process.env.TWITTER_API_KEY!;
-const TWITTER_API_SECRET = process.env.TWITTER_API_SECRET!;
-
-// OAuth 1.0a設定
-const oauth = new OAuth({
-  consumer: {
-    key: TWITTER_API_KEY,
-    secret: TWITTER_API_SECRET,
-  },
-  signature_method: 'HMAC-SHA1',
-  hash_function(base_string, key) {
-    return crypto.createHmac('sha1', key).update(base_string).digest('base64');
-  },
-});
+import { TwitterApi } from 'twitter-api-v2';
 
 interface TwitterToken {
   key: string;
@@ -24,34 +6,27 @@ interface TwitterToken {
 }
 
 /**
+ * Twitterクライアントを作成
+ */
+function createClient(token: TwitterToken) {
+  return new TwitterApi({
+    appKey: process.env.TWITTER_API_KEY!,
+    appSecret: process.env.TWITTER_API_SECRET!,
+    accessToken: token.key,
+    accessSecret: token.secret,
+  });
+}
+
+/**
  * 画像をTwitterにアップロード
  */
 export async function uploadMedia(imageBuffer: Buffer, token: TwitterToken) {
-  const url = 'https://upload.twitter.com/1.1/media/upload.json';
-  
-  const formData = new FormData();
-  const blob = new Blob([imageBuffer], { type: 'image/jpeg' });
-  formData.append('media', blob);
-
-  const authHeader = oauth.toHeader(
-    oauth.authorize(
-      {
-        url,
-        method: 'POST'
-      },
-      token
-    )
-  );
-
   try {
-    const response = await axios.post(url, formData, {
-      headers: {
-        ...authHeader,
-        'Content-Type': 'multipart/form-data'
-      }
+    const client = createClient(token);
+    const mediaId = await client.v1.uploadMedia(imageBuffer, {
+      mimeType: 'image/jpeg'
     });
-
-    return response.data.media_id_string;
+    return mediaId;
   } catch (error) {
     console.error('Media upload error:', error);
     throw new Error('画像のアップロードに失敗しました');
@@ -67,37 +42,21 @@ export async function postTweet(
   mediaId?: string,
   inReplyToStatusId?: string
 ) {
-  const url = 'https://api.twitter.com/2/tweets';
-  
-  const data: any = { text };
-  
-  if (mediaId) {
-    data.media = { media_ids: [mediaId] };
-  }
-  
-  if (inReplyToStatusId) {
-    data.reply = { in_reply_to_tweet_id: inReplyToStatusId };
-  }
-
-  const authHeader = oauth.toHeader(
-    oauth.authorize(
-      {
-        url,
-        method: 'POST'
-      },
-      token
-    )
-  );
-
   try {
-    const response = await axios.post(url, data, {
-      headers: {
-        ...authHeader,
-        'Content-Type': 'application/json'
-      }
-    });
+    const client = createClient(token);
+    
+    const tweetData: any = { text };
+    
+    if (mediaId) {
+      tweetData.media = { media_ids: [mediaId] };
+    }
+    
+    if (inReplyToStatusId) {
+      tweetData.reply = { in_reply_to_tweet_id: inReplyToStatusId };
+    }
 
-    return response.data.data.id;
+    const result = await client.v2.tweet(tweetData);
+    return result.data.id;
   } catch (error) {
     console.error('Tweet post error:', error);
     throw new Error('ツイートの投稿に失敗しました');
@@ -152,6 +111,11 @@ export async function postThread(
       
       tweetIds.push(tweetId);
       previousTweetId = tweetId;
+      
+      // レート制限対策で少し待機
+      if (i < textList.length - 1) {
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      }
     } catch (error) {
       console.error(`Tweet ${i + 1} failed:`, error);
       throw new Error(`スレッドの${i + 1}番目のツイートで失敗しました`);
@@ -191,6 +155,9 @@ export async function broadcastToAccounts(
         error: error instanceof Error ? error.message : '不明なエラー'
       });
     }
+    
+    // アカウント間でも少し待機
+    await new Promise(resolve => setTimeout(resolve, 2000));
   }
   
   return results;
