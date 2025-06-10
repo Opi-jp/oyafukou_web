@@ -63,9 +63,25 @@ async function addStaffMember(storeId: string, lineUserId: string, name: string,
     });
     
     if (store) {
-      console.log('Staff already registered for store:', store.name);
+      console.log('Staff already registered, updating role for store:', store.name);
+      // 既存のスタッフ情報を更新
+      const updateResult = await db.collection('stores').updateOne(
+        { 
+          _id: new ObjectId(storeId),
+          'staffMembers.lineUserId': lineUserId 
+        },
+        { 
+          $set: { 
+            'staffMembers.$.role': role,
+            'staffMembers.$.name': name,
+            'staffMembers.$.isActive': true,
+            lastUpdated: new Date()
+          } 
+        }
+      );
+      
       await client.close();
-      return { success: false, message: '既にスタッフ登録されています' };
+      return { success: updateResult.modifiedCount > 0, message: '役職を更新しました' };
     }
     
     // staffMembersフィールドが存在しない場合は初期化
@@ -309,12 +325,13 @@ export async function POST(request: NextRequest) {
               if (result.success) {
                 // 管理画面のURLを生成
                 const adminUrl = `https://oyafukou-web.vercel.app/admin/stores/${storeId}/staff-comments`;
+                const isUpdate = result.message === '役職を更新しました';
                 
                 await client.replyMessage({
                   replyToken: event.replyToken,
                   messages: [{
                     type: 'text',
-                    text: `✅ ${storeName}への登録が完了しました！\n\n登録情報：\n・役職：${role}\n\nこれから以下の情報を送信できます：\n・テキスト → コメント更新\n・画像 → プロフィール写真更新\n\n※お名前は管理画面から設定してください\n${adminUrl}`
+                    text: `✅ ${storeName}への${isUpdate ? '登録情報を更新' : '登録が完了'}しました！\n\n登録情報：\n・役職：${role}\n\nこれから以下の情報を送信できます：\n・テキスト → コメント更新\n・画像 → プロフィール写真更新\n\n※お名前は管理画面から設定してください\n${adminUrl}`
                   }]
                 });
                 
@@ -323,7 +340,7 @@ export async function POST(request: NextRequest) {
                   storeName,
                   role,
                   'comment',
-                  `新規スタッフ登録: ${role}`
+                  isUpdate ? `スタッフ情報更新: ${role}` : `新規スタッフ登録: ${role}`
                 );
                 await sendSlackNotification(slackMessage);
               } else {
