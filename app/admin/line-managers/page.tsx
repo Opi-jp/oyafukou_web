@@ -86,21 +86,21 @@ export default function LineManagersPage() {
                   {/* デスクトップ表示 */}
                   <div className="hidden sm:block overflow-x-auto">
                     <table className="min-w-full divide-y divide-gray-200">
-                      <thead>
+                      <thead className="bg-gray-50">
                         <tr>
-                          <th className="px-4 py-2 text-left">店舗名</th>
-                          <th className="px-4 py-2 text-left">マネージャー名</th>
-                          <th className="px-4 py-2 text-left">LINE ID</th>
-                          <th className="px-4 py-2 text-left">ステータス</th>
-                          <th className="px-4 py-2 text-left">操作</th>
+                          <th className="px-4 py-2 text-left text-gray-700 font-semibold">店舗名</th>
+                          <th className="px-4 py-2 text-left text-gray-700 font-semibold">マネージャー名</th>
+                          <th className="px-4 py-2 text-left text-gray-700 font-semibold">LINE ID</th>
+                          <th className="px-4 py-2 text-left text-gray-700 font-semibold">ステータス</th>
+                          <th className="px-4 py-2 text-left text-gray-700 font-semibold">操作</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-gray-200">
                         {lineEnabledStores.map((store) => (
                           <tr key={store._id}>
-                            <td className="px-4 py-2">{store.name}</td>
-                            <td className="px-4 py-2">{store.managerName || '-'}</td>
-                            <td className="px-4 py-2 text-xs font-mono">{store.lineUserId}</td>
+                            <td className="px-4 py-2 text-gray-900">{store.name}</td>
+                            <td className="px-4 py-2 text-gray-900">{store.managerName || '-'}</td>
+                            <td className="px-4 py-2 text-xs font-mono text-gray-700">{store.lineUserId}</td>
                             <td className="px-4 py-2">
                               <span className={`px-2 py-1 text-xs rounded ${
                                 store.lineManagerActive ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
