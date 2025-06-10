@@ -275,11 +275,14 @@ export async function POST(request: NextRequest) {
               const result = await addStaffMember(storeId, lineUserId, role, role);
               
               if (result.success) {
+                // 管理画面のURLを生成
+                const adminUrl = `https://oyafukou-web.vercel.app/admin/stores/${storeId}/staff-comments`;
+                
                 await client.replyMessage({
                   replyToken: event.replyToken,
                   messages: [{
                     type: 'text',
-                    text: `✅ ${storeName}への登録が完了しました！\n\n登録情報：\n・役職：${role}\n\nこれから以下の情報を送信できます：\n・テキスト → コメント更新\n・画像 → プロフィール写真更新\n\n※お名前は管理画面から設定してください`
+                    text: `✅ ${storeName}への登録が完了しました！\n\n登録情報：\n・役職：${role}\n\nこれから以下の情報を送信できます：\n・テキスト → コメント更新\n・画像 → プロフィール写真更新\n\n※お名前は管理画面から設定してください\n${adminUrl}`
                   }]
                 });
                 
