@@ -3,6 +3,7 @@ import connectDB from '@/lib/mongodb';
 import Store from '@/models/Store';
 import { isStoreOpenToday } from '@/lib/utils';
 import { sendSlackNotification, createStoreUpdateMessage } from '@/lib/slack';
+import { sendLineNotification, createRegistrationCompleteMessage } from '@/lib/line';
 
 export async function GET(
   request: NextRequest,
@@ -94,6 +95,14 @@ export async function PUT(
         [`${staffData.name}（${staffData.role || 'スタッフ'}）が本登録を完了`]
       );
       await sendSlackNotification(slackMessage);
+      
+      // LINE通知
+      const lineMessage = createRegistrationCompleteMessage(
+        updatedStore.name,
+        staffData.name,
+        staffData.role || 'スタッフ'
+      );
+      await sendLineNotification(staffData.lineUserId, lineMessage);
       
       return NextResponse.json(updatedStore);
     }

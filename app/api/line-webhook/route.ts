@@ -695,7 +695,7 @@ export async function POST(request: NextRequest) {
                     replyToken: event.replyToken,
                     messages: [{
                       type: 'text',
-                      text: `✅ コメントを更新しました！\n\n投稿者：${staff.name}（${staff.role}）\n内容：${messageText}\n\n※ウェブサイトに反映されました`
+                      text: `✅ コメントを更新しました！\n\n投稿者：${staff.name}（${staff.role}）\n内容：${messageText}\n\n📱 確認はこちら：\nhttps://oyafukou-web.vercel.app/stores/${staffStore._id}`
                     }]
                   });
                   
@@ -867,7 +867,7 @@ export async function POST(request: NextRequest) {
               replyToken: event.replyToken,
               messages: [{
                 type: 'text',
-                text: `✅ プロフィール写真を更新しました！\n\n${staff.name}（${staff.role}）`
+                text: `✅ プロフィール写真を更新しました！\n\n${staff.name}（${staff.role}）\n\n📱 確認はこちら：\nhttps://oyafukou-web.vercel.app/admin/stores/${staffStore._id}/staff-comments`
               }]
             });
             
