@@ -53,10 +53,10 @@ export default function LineManagersPage() {
             <div className="text-center py-8">読み込み中...</div>
           ) : (
             <div className="bg-white rounded-lg shadow p-4 sm:p-6">
-              <h2 className="text-lg sm:text-xl font-semibold mb-4">LINE連携済み店舗</h2>
+              <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4">LINE連携済み店舗</h2>
               
               {lineEnabledStores.length === 0 ? (
-                <p className="text-gray-500">LINE連携されている店舗はありません。</p>
+                <p className="text-gray-600">LINE連携されている店舗はありません。</p>
               ) : (
                 <>
                   {/* モバイル表示 */}
@@ -125,8 +125,8 @@ export default function LineManagersPage() {
               )}
 
               <div className="mt-6 p-4 bg-blue-50 rounded">
-                <h3 className="font-semibold mb-2">LINE連携の設定方法</h3>
-                <ol className="list-decimal list-inside text-sm space-y-1">
+                <h3 className="font-semibold text-blue-900 mb-2">LINE連携の設定方法</h3>
+                <ol className="list-decimal list-inside text-sm text-blue-800 space-y-1">
                   <li>店舗編集画面で「LINE連携」セクションを開く</li>
                   <li>マネージャーにQRコードをスキャンしてもらう</li>
                   <li>送られてきたLINE IDを店舗編集画面に入力</li>
