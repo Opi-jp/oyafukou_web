@@ -156,14 +156,21 @@ const StoreSchema = new mongoose.Schema({
       default: 'スタッフ'
     },
     photo: String,
+    phone: String,
+    email: String,
     isActive: {
       type: Boolean,
       default: true
     },
+    isTemporary: {
+      type: Boolean,
+      default: false
+    },
     addedAt: {
       type: Date,
       default: Date.now
-    }
+    },
+    registeredAt: Date
   }],
   
   // スタッフコメント（承認待ち含む）

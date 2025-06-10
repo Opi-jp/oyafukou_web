@@ -18,6 +18,8 @@ interface StaffMember {
   name: string;
   role: string;
   photo?: string;
+  phone?: string;
+  email?: string;
   isActive: boolean;
   isTemporary?: boolean;
   addedAt: Date;
@@ -99,9 +101,13 @@ export default function StaffCommentsPage() {
     }
   };
 
-  const handleUpdateStaffName = async (lineUserId: string, newName: string) => {
-    const name = prompt('新しい名前を入力してください', newName);
-    if (!name || name === newName) return;
+  const handleUpdateStaffInfo = async (staff: StaffMember) => {
+    // 編集ダイアログを表示（簡易版）
+    const newName = prompt('名前', staff.name);
+    if (!newName) return;
+    
+    const newPhone = prompt('電話番号', staff.phone || '');
+    const newEmail = prompt('メールアドレス', staff.email || '');
 
     setUpdating(true);
     try {
@@ -109,15 +115,19 @@ export default function StaffCommentsPage() {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          updateType: 'updateStaffName',
-          lineUserId,
-          name
+          updateType: 'updateStaffInfo',
+          lineUserId: staff.lineUserId,
+          staffData: {
+            name: newName,
+            phone: newPhone,
+            email: newEmail
+          }
         })
       });
 
       if (!res.ok) throw new Error('更新に失敗しました');
       await fetchStore();
-      alert('名前を更新しました');
+      alert('スタッフ情報を更新しました');
     } catch (error) {
       console.error('Error:', error);
       alert('更新に失敗しました');
@@ -176,16 +186,16 @@ export default function StaffCommentsPage() {
                 {store.staffMembers.map((staff) => (
                   <div key={staff.lineUserId} className="border rounded-lg p-4">
                     <div className="flex items-start justify-between">
-                      <div className="flex items-center space-x-4">
+                      <div className="flex items-start space-x-4 flex-1">
                         {staff.photo && (
                           <img
                             src={staff.photo}
                             alt={staff.name}
-                            className="w-16 h-16 rounded-full object-cover"
+                            className="w-16 h-16 rounded-full object-cover flex-shrink-0"
                           />
                         )}
-                        <div>
-                          <div className="flex items-center gap-2">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
                             <h3 className="font-medium text-lg">{staff.name}</h3>
                             {staff.isTemporary && (
                               <span className="px-2 py-1 text-xs bg-yellow-100 text-yellow-800 rounded">
@@ -193,29 +203,67 @@ export default function StaffCommentsPage() {
                               </span>
                             )}
                           </div>
-                          <p className="text-sm text-gray-600">{staff.role}</p>
-                          <p className="text-xs text-gray-500">
-                            登録日: {new Date(staff.addedAt).toLocaleDateString('ja-JP')}
-                          </p>
+                          <p className="text-sm text-gray-600 mb-2">{staff.role}</p>
+                          
+                          {/* 詳細情報 */}
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
+                            <div>
+                              <span className="text-gray-500">LINE ID:</span>
+                              <span className="ml-2 text-gray-700 font-mono text-xs">{staff.lineUserId}</span>
+                            </div>
+                            {staff.phone && (
+                              <div>
+                                <span className="text-gray-500">電話:</span>
+                                <span className="ml-2 text-gray-700">{staff.phone}</span>
+                              </div>
+                            )}
+                            {staff.email && (
+                              <div>
+                                <span className="text-gray-500">メール:</span>
+                                <span className="ml-2 text-gray-700">{staff.email}</span>
+                              </div>
+                            )}
+                            <div>
+                              <span className="text-gray-500">登録日:</span>
+                              <span className="ml-2 text-gray-700">{new Date(staff.addedAt).toLocaleDateString('ja-JP')}</span>
+                            </div>
+                            <div>
+                              <span className="text-gray-500">ステータス:</span>
+                              <span className={`ml-2 ${staff.isActive && !staff.isTemporary ? 'text-green-600' : 'text-gray-600'}`}>
+                                {staff.isActive && !staff.isTemporary ? 'アクティブ' : staff.isTemporary ? '仮登録' : '非アクティブ'}
+                              </span>
+                            </div>
+                          </div>
                         </div>
                       </div>
                       
-                      <div className="flex flex-col gap-2">
+                      <div className="flex flex-col gap-2 ml-4">
                         {staff.isTemporary ? (
                           <Link
                             href={`/admin/stores/${storeId}/staff-register?lineUserId=${staff.lineUserId}&role=${encodeURIComponent(staff.role)}`}
-                            className="text-sm bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700"
+                            className="text-sm bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 whitespace-nowrap"
                           >
                             本登録を完了
                           </Link>
                         ) : (
-                          <button
-                            onClick={() => handleUpdateStaffName(staff.lineUserId, staff.name)}
-                            className="text-sm text-blue-600 hover:underline"
-                            disabled={updating}
-                          >
-                            名前を編集
-                          </button>
+                          <>
+                            <button
+                              onClick={() => handleUpdateStaffInfo(staff)}
+                              className="text-sm text-blue-600 hover:underline"
+                              disabled={updating}
+                            >
+                              編集
+                            </button>
+                            {staff.isActive && (
+                              <button
+                                className="text-sm text-gray-600 hover:text-red-600"
+                                disabled={updating}
+                                onClick={() => {/* 非アクティブ化処理 */}}
+                              >
+                                無効化
+                              </button>
+                            )}
+                          </>
                         )}
                       </div>
                     </div>

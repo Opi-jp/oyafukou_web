@@ -107,9 +107,9 @@ export async function PUT(
       return NextResponse.json(updatedStore);
     }
     
-    // スタッフ名更新の処理
-    if (body.updateType === 'updateStaffName') {
-      const { lineUserId, name } = body;
+    // スタッフ情報更新の処理
+    if (body.updateType === 'updateStaffInfo') {
+      const { lineUserId, staffData } = body;
       
       const { MongoClient, ObjectId } = await import('mongodb');
       const client = new MongoClient(process.env.MONGODB_URI!);
@@ -124,7 +124,9 @@ export async function PUT(
         },
         { 
           $set: { 
-            'staffMembers.$.name': name,
+            'staffMembers.$.name': staffData.name,
+            'staffMembers.$.phone': staffData.phone,
+            'staffMembers.$.email': staffData.email,
             lastUpdated: new Date()
           } 
         }
@@ -134,7 +136,7 @@ export async function PUT(
       
       if (result.modifiedCount === 0) {
         return NextResponse.json(
-          { error: 'スタッフ名の更新に失敗しました' },
+          { error: 'スタッフ情報の更新に失敗しました' },
           { status: 400 }
         );
       }
