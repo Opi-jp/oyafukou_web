@@ -369,38 +369,38 @@ export default function StaffCommentsPage() {
       {editingStaff && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-lg p-6 max-w-md w-full">
-            <h3 className="text-lg font-bold mb-4">スタッフ情報を編集</h3>
+            <h3 className="text-lg font-bold mb-4 text-gray-900">スタッフ情報を編集</h3>
             
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-1">名前</label>
+                <label className="block text-sm font-medium mb-1 text-gray-700">名前</label>
                 <input
                   type="text"
                   value={editForm.name}
                   onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
-                  className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
                   placeholder="山田 太郎"
                 />
               </div>
               
               <div>
-                <label className="block text-sm font-medium mb-1">電話番号</label>
+                <label className="block text-sm font-medium mb-1 text-gray-700">電話番号</label>
                 <input
                   type="tel"
                   value={editForm.phone}
                   onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })}
-                  className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
                   placeholder="090-1234-5678"
                 />
               </div>
               
               <div>
-                <label className="block text-sm font-medium mb-1">メールアドレス</label>
+                <label className="block text-sm font-medium mb-1 text-gray-700">メールアドレス</label>
                 <input
                   type="email"
                   value={editForm.email}
                   onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
-                  className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
                   placeholder="example@email.com"
                 />
               </div>
