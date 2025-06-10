@@ -16,6 +16,11 @@
 - `/api/line-webhook` - LINE Botのwebhookエンドポイント
 - `/api/line-managers` - LINE連携管理者の一覧取得
 - `/api/line-managers/[id]` - LINE連携管理者の個別操作
+- `/api/auth/twitter` - Twitter OAuth認証開始
+- `/api/auth/twitter/callback` - Twitter OAuth認証コールバック
+- `/api/twitter-accounts` - Twitterアカウント管理
+- `/api/social-posts` - SNS投稿の作成・管理
+- `/api/cron/process-scheduled-posts` - 予約投稿処理（Vercel Cron）
 
 ## 管理画面の仕様
 - パス: `/admin`
@@ -33,6 +38,11 @@
   - `/admin/stores/[id]/qr-code` - LINE QRコード表示
   - `/admin/stores/[id]/staff-comments` - スタッフコメント履歴管理
   - `/admin/line-managers` - LINE連携一覧
+  - `/admin/sns` - SNS投稿管理メイン
+  - `/admin/sns/broadcast` - 一斉投稿画面
+  - `/admin/sns/accounts` - Twitterアカウント管理
+  - `/admin/sns/history` - 投稿履歴
+  - `/stores/[id]/post` - 店舗別X投稿画面
 
 ## 店舗データ構造
 ```typescript
@@ -162,6 +172,8 @@ npm run typecheck
   - `LINE_CHANNEL_ACCESS_TOKEN` - LINE Bot用アクセストークン
   - `LINE_CHANNEL_SECRET` - LINE Bot用シークレット
   - `SLACK_WEBHOOK_URL` - Slack通知用WebhookURL
+  - `TWITTER_CONSUMER_KEY` - Twitter API Key（2025年1月追加）
+  - `TWITTER_CONSUMER_SECRET` - Twitter API Secret（2025年1月追加）
 
 ## デプロイ
 - GitHub: https://github.com/Opi-jp/oyafukou_web
@@ -190,6 +202,17 @@ npm run typecheck
   - コメント履歴管理機能
   - 表示側で役職に応じた「○○からの一言」表示
   - 承認不要で即時公開
+- **SNSマルチ投稿システム実装（2025年1月10日）**
+  - X(Twitter) OAuth認証実装
+  - 管理画面を「WEB管理」と「SNS投稿管理」に分離
+  - 一斉投稿機能（複数アカウントへの同時投稿）
+  - 予約投稿機能（Vercel Proプラン必須 - 毎分実行）
+  - スレッド投稿対応
+  - URL自動移動機能（2ツイート目以降へ）
+  - 画像/動画アップロード対応（Vercel Blob使用）
+  - 投稿履歴管理
+  - 店舗別投稿画面（`/stores/[id]/post`）
+  - Twitter Developer PortalでCallback URL設定必須：`https://oyafukou-web.vercel.app/api/auth/twitter/callback`
 
 ## LINE連携の流れ（旧システム - 店長のみ）
 1. 管理画面で店舗編集ページを開く
@@ -209,6 +232,15 @@ npm run typecheck
    - LINE_CHANNEL_SECRET
 3. `/api/debug-line`エンドポイントで診断情報を確認（未実装）
 
+### Twitter認証が失敗する場合
+1. Twitter Developer Portalで以下を確認：
+   - Callback URL: `https://oyafukou-web.vercel.app/api/auth/twitter/callback`
+   - App permissions: Read and write
+2. Vercelの環境変数を確認：
+   - TWITTER_CONSUMER_KEY
+   - TWITTER_CONSUMER_SECRET
+3. 複数のCallback URLが必要な場合は、Developer Portalで複数行に分けて登録可能
+
 ## 作業継続方法
 VSCodeを閉じた後も、以下の方法で作業を継続できます：
 ```bash
@@ -219,3 +251,27 @@ cd /Users/yukio/oyafukou-web
 claude
 ```
 このファイル（CLAUDE.md）が自動的に読み込まれ、プロジェクトの状態が把握されます。
+
+## SNSマルチ投稿システムの詳細仕様
+### データベースモデル
+- `ScheduledPost` - 予約投稿管理
+- `TwitterToken` - Twitterアカウント認証情報
+- `PostLog` - 投稿履歴
+- `OfficialPostQueue` - 再利用可能な投稿テンプレート
+
+### 投稿処理フロー
+1. ユーザーが投稿内容を作成（テキスト、画像/動画）
+2. 即時投稿または予約投稿を選択
+3. URL自動移動処理（extractAndMoveUrls関数）
+4. 予約投稿の場合：ScheduledPostに保存、Cronジョブで処理
+5. 投稿完了後：PostLogに記録
+
+### Vercelプラン要件
+- Hobbyプラン：Cronジョブは1日1回のみ（朝9時に設定）
+- Proプラン：毎分実行可能（リアルタイム予約投稿）
+
+### 今後の拡張予定
+- Instagram連携
+- Facebook連携
+- 投稿分析機能
+- AI投稿文生成
