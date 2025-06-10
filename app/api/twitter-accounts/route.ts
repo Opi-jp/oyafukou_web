@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
 import TwitterToken from '@/models/TwitterToken';
-import Store from '@/models/Store';
 
 export async function GET() {
   try {
