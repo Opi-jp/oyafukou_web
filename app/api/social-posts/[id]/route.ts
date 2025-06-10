@@ -4,13 +4,14 @@ import ScheduledPost from '@/models/ScheduledPost';
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await context.params;
   try {
     await connectDB();
     
     const post = await ScheduledPost.findByIdAndUpdate(
-      params.id,
+      id,
       { status: 'cancelled' },
       { new: true }
     );

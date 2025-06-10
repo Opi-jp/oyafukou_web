@@ -4,8 +4,9 @@ import TwitterToken from '@/models/TwitterToken';
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await context.params;
   try {
     await connectDB();
     const body = await request.json();
@@ -16,7 +17,7 @@ export async function PATCH(
     if ('storeName' in body) updateData.storeName = body.storeName;
     
     const account = await TwitterToken.findByIdAndUpdate(
-      params.id,
+      id,
       updateData,
       { new: true }
     );
@@ -40,12 +41,13 @@ export async function PATCH(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await context.params;
   try {
     await connectDB();
     
-    const account = await TwitterToken.findByIdAndDelete(params.id);
+    const account = await TwitterToken.findByIdAndDelete(id);
     
     if (!account) {
       return NextResponse.json(
