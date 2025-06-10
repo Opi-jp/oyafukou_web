@@ -46,42 +46,68 @@ async function getAllStores() {
 
 // スタッフを店舗に追加
 async function addStaffMember(storeId: string, lineUserId: string, name: string, role: string) {
-  const uri = process.env.MONGODB_URI!;
-  const client = new MongoClient(uri);
-  await client.connect();
-  
-  const db = client.db('parent_site_admin');
-  const { ObjectId } = await import('mongodb');
-  
-  // 既に登録されているかチェック
-  const store = await db.collection('stores').findOne({ 
-    _id: new ObjectId(storeId),
-    'staffMembers.lineUserId': lineUserId 
-  });
-  
-  if (store) {
+  try {
+    console.log('addStaffMember called with:', { storeId, lineUserId, name, role });
+    
+    const uri = process.env.MONGODB_URI!;
+    const client = new MongoClient(uri);
+    await client.connect();
+    
+    const db = client.db('parent_site_admin');
+    const { ObjectId } = await import('mongodb');
+    
+    // 既に登録されているかチェック
+    const store = await db.collection('stores').findOne({ 
+      _id: new ObjectId(storeId),
+      'staffMembers.lineUserId': lineUserId 
+    });
+    
+    if (store) {
+      console.log('Staff already registered for store:', store.name);
+      await client.close();
+      return { success: false, message: '既にスタッフ登録されています' };
+    }
+    
+    // staffMembersフィールドが存在しない場合は初期化
+    const storeExists = await db.collection('stores').findOne({ _id: new ObjectId(storeId) });
+    if (!storeExists) {
+      console.error('Store not found:', storeId);
+      await client.close();
+      return { success: false, message: '店舗が見つかりません' };
+    }
+    
+    if (!storeExists.staffMembers) {
+      console.log('Initializing staffMembers array for store:', storeExists.name);
+      await db.collection('stores').updateOne(
+        { _id: new ObjectId(storeId) },
+        { $set: { staffMembers: [] } }
+      );
+    }
+    
+    const result = await db.collection('stores').updateOne(
+      { _id: new ObjectId(storeId) },
+      { 
+        $push: { 
+          staffMembers: {
+            lineUserId: lineUserId,
+            name: name,
+            role: role,
+            isActive: true,
+            addedAt: new Date()
+          }
+        } as any,
+        $set: { lastUpdated: new Date() }
+      } as any
+    );
+    
+    console.log('Update result:', { modifiedCount: result.modifiedCount, acknowledged: result.acknowledged });
+    
     await client.close();
-    return { success: false, message: '既にスタッフ登録されています' };
+    return { success: result.modifiedCount > 0, message: '' };
+  } catch (error) {
+    console.error('Error in addStaffMember:', error);
+    return { success: false, message: 'エラーが発生しました' };
   }
-  
-  const result = await db.collection('stores').updateOne(
-    { _id: new ObjectId(storeId) },
-    { 
-      $push: { 
-        staffMembers: {
-          lineUserId: lineUserId,
-          name: name,
-          role: role,
-          isActive: true,
-          addedAt: new Date()
-        }
-      } as any,
-      $set: { lastUpdated: new Date() }
-    } as any
-  );
-  
-  await client.close();
-  return { success: result.modifiedCount > 0, message: '' };
 }
 
 // LINE IDからスタッフ情報を取得
@@ -270,9 +296,15 @@ export async function POST(request: NextRequest) {
             // 役職選択の処理（シンプル版：名前は後から管理画面で設定）
             if (roleMatch) {
               const [, storeId, storeName, role] = roleMatch;
+              console.log('=== Staff Registration ===');
+              console.log('Store ID:', storeId);
+              console.log('Store Name:', storeName);
+              console.log('Role:', role);
+              console.log('Line User ID:', lineUserId);
               
               // スタッフメンバーとして登録
               const result = await addStaffMember(storeId, lineUserId, role, role);
+              console.log('Registration result:', result);
               
               if (result.success) {
                 // 管理画面のURLを生成
@@ -391,17 +423,22 @@ export async function POST(request: NextRequest) {
         // 新システム（スタッフメンバー）の場合
         else if (staffInfo) {
           const { store: staffStore, staff } = staffInfo;
+          console.log('=== Staff Comment Update ===');
+          console.log('Store:', staffStore.name);
+          console.log('Staff:', staff.name, `(${staff.role})`);
+          console.log('Comment:', messageText);
           
-          // スタッフコメントを追加して即時公開
-          const uri = process.env.MONGODB_URI!;
-          const mongoClient = new MongoClient(uri);
-          await mongoClient.connect();
-          
-          const db = mongoClient.db('parent_site_admin');
-          const { ObjectId } = await import('mongodb');
-          
-          // コメントを履歴に追加
-          await db.collection('stores').updateOne(
+          try {
+            // スタッフコメントを追加して即時公開
+            const uri = process.env.MONGODB_URI!;
+            const mongoClient = new MongoClient(uri);
+            await mongoClient.connect();
+            
+            const db = mongoClient.db('parent_site_admin');
+            const { ObjectId } = await import('mongodb');
+            
+            // コメントを履歴に追加
+            const updateResult = await db.collection('stores').updateOne(
             { _id: new ObjectId(staffStore._id) },
             {
               $push: {
@@ -431,9 +468,12 @@ export async function POST(request: NextRequest) {
             }
           );
           
+          console.log('Update result:', { modifiedCount: updateResult.modifiedCount });
+          
           await mongoClient.close();
           
-          await client.replyMessage({
+          if (updateResult.modifiedCount > 0) {
+            await client.replyMessage({
             replyToken: event.replyToken,
             messages: [{
               type: 'text',
@@ -441,14 +481,34 @@ export async function POST(request: NextRequest) {
             }]
           });
           
-          // Slack通知
-          const slackMessage = createLineUpdateMessage(
-            staffStore.name,
-            `${staff.name}（${staff.role}）`,
-            'comment',
-            messageText
-          );
-          await sendSlackNotification(slackMessage);
+            // Slack通知
+            const slackMessage = createLineUpdateMessage(
+              staffStore.name,
+              `${staff.name}（${staff.role}）`,
+              'comment',
+              messageText
+            );
+            await sendSlackNotification(slackMessage);
+          } else {
+            console.error('Failed to update comment');
+            await client.replyMessage({
+              replyToken: event.replyToken,
+              messages: [{
+                type: 'text',
+                text: '❌ コメントの更新に失敗しました。もう一度お試しください。'
+              }]
+            });
+          }
+          } catch (error) {
+            console.error('Error updating staff comment:', error);
+            await client.replyMessage({
+              replyToken: event.replyToken,
+              messages: [{
+                type: 'text',
+                text: '❌ エラーが発生しました。もう一度お試しください。'
+              }]
+            });
+          }
         }
       }
       // 画像メッセージの処理
