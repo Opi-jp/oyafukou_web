@@ -44,10 +44,10 @@ async function getAllStores() {
 }
 
 
-// スタッフを店舗に追加
-async function addStaffMember(storeId: string, lineUserId: string, name: string, role: string) {
+// スタッフを仮登録（LINE IDと役職のみ保存、詳細はWeb登録）
+async function addStaffMember(storeId: string, lineUserId: string, name: string, role: string, photo?: string) {
   try {
-    console.log('addStaffMember called with:', { storeId, lineUserId, name, role });
+    console.log('addStaffMember called with:', { storeId, lineUserId, role });
     
     const uri = process.env.MONGODB_URI!;
     const client = new MongoClient(uri);
@@ -65,18 +65,25 @@ async function addStaffMember(storeId: string, lineUserId: string, name: string,
     if (store) {
       console.log('Staff already registered, updating role for store:', store.name);
       // 既存のスタッフ情報を更新
+      const updateData: any = {
+        'staffMembers.$.role': role,
+        'staffMembers.$.isTemporary': true,  // 仮登録フラグ
+        'staffMembers.$.isActive': false,    // Web登録完了まで非アクティブ
+        lastUpdated: new Date()
+      };
+      
+      // 写真URLがある場合は追加
+      if (photo) {
+        updateData['staffMembers.$.photo'] = photo;
+      }
+      
       const updateResult = await db.collection('stores').updateOne(
         { 
           _id: new ObjectId(storeId),
           'staffMembers.lineUserId': lineUserId 
         },
         { 
-          $set: { 
-            'staffMembers.$.role': role,
-            'staffMembers.$.name': name,
-            'staffMembers.$.isActive': true,
-            lastUpdated: new Date()
-          } 
+          $set: updateData
         }
       );
       
@@ -100,17 +107,25 @@ async function addStaffMember(storeId: string, lineUserId: string, name: string,
       );
     }
     
+    const staffMember: any = {
+      lineUserId: lineUserId,
+      name: '未設定',  // Web登録時に設定
+      role: role,
+      isTemporary: true,  // 仮登録フラグ
+      isActive: false,    // Web登録完了まで非アクティブ
+      addedAt: new Date()
+    };
+    
+    // 写真URLがある場合は追加
+    if (photo) {
+      staffMember.photo = photo;
+    }
+    
     const result = await db.collection('stores').updateOne(
       { _id: new ObjectId(storeId) },
       { 
         $push: { 
-          staffMembers: {
-            lineUserId: lineUserId,
-            name: name,
-            role: role,
-            isActive: true,
-            addedAt: new Date()
-          }
+          staffMembers: staffMember
         } as any,
         $set: { lastUpdated: new Date() }
       } as any
@@ -126,27 +141,39 @@ async function addStaffMember(storeId: string, lineUserId: string, name: string,
   }
 }
 
-// LINE IDからスタッフ情報を取得
+// LINE IDからスタッフ情報を取得（複数店舗対応）
 async function getStaffByLineUserId(lineUserId: string) {
   const uri = process.env.MONGODB_URI!;
   const client = new MongoClient(uri);
   await client.connect();
   
   const db = client.db('parent_site_admin');
-  const store = await db.collection('stores').findOne({
+  // 複数店舗を取得（アクティブかつ本登録済みのみ）
+  const stores = await db.collection('stores').find({
     'staffMembers.lineUserId': lineUserId,
-    'staffMembers.isActive': true
-  });
+    'staffMembers.isActive': true,
+    'staffMembers.isTemporary': { $ne: true }
+  }).toArray();
   
   await client.close();
   
-  if (!store) return null;
+  if (!stores || stores.length === 0) return null;
   
-  const staff = store.staffMembers.find(
-    (s: { lineUserId: string; isActive: boolean }) => s.lineUserId === lineUserId && s.isActive
-  );
+  // 各店舗のスタッフ情報を抽出
+  const staffInfoList = stores.map(store => {
+    const staff = store.staffMembers.find(
+      (s: { lineUserId: string; isActive: boolean }) => s.lineUserId === lineUserId && s.isActive
+    );
+    return { store, staff };
+  });
   
-  return { store, staff };
+  // 単一店舗の場合は従来の形式で返す
+  if (staffInfoList.length === 1) {
+    return staffInfoList[0];
+  }
+  
+  // 複数店舗の場合
+  return { stores: staffInfoList, isMultiple: true };
 }
 
 // 店長コメントを更新
@@ -255,9 +282,122 @@ export async function POST(request: NextRequest) {
             // 店舗登録メッセージのパターンマッチ
             const registrationPattern = /^店舗登録:([a-f0-9]{24}):(.+)$/;
             const rolePattern = /^役職選択:([a-f0-9]{24}):(.+):(.+)$/;
+            const commentUpdatePattern = /^コメント更新:([a-f0-9]{24}):(.+)$/;
             
             const match = messageText.match(registrationPattern);
             const roleMatch = messageText.match(rolePattern);
+            const commentMatch = messageText.match(commentUpdatePattern);
+            
+            // コメント更新（複数店舗対応）
+            if (commentMatch) {
+              const [, storeId, comment] = commentMatch;
+              console.log('=== Comment Update (Multiple Store Support) ===');
+              console.log('Store ID:', storeId);
+              console.log('Comment:', comment);
+              
+              try {
+                // 指定された店舗のスタッフ情報を取得
+                const uri = process.env.MONGODB_URI!;
+                const mongoClient = new MongoClient(uri);
+                await mongoClient.connect();
+                
+                const db = mongoClient.db('parent_site_admin');
+                const { ObjectId } = await import('mongodb');
+                
+                // 店舗情報とスタッフ情報を取得
+                const store = await db.collection('stores').findOne({
+                  _id: new ObjectId(storeId),
+                  'staffMembers.lineUserId': lineUserId,
+                  'staffMembers.isActive': true
+                });
+                
+                if (!store) {
+                  await mongoClient.close();
+                  await client.replyMessage({
+                    replyToken: event.replyToken,
+                    messages: [{
+                      type: 'text',
+                      text: '❌ 指定された店舗に登録されていません。'
+                    }]
+                  });
+                  continue;
+                }
+                
+                const staff = store.staffMembers.find(
+                  (s: { lineUserId: string; isActive: boolean }) => s.lineUserId === lineUserId && s.isActive
+                );
+                
+                // コメントを履歴に追加して即時公開
+                const updateResult = await db.collection('stores').updateOne(
+                  { _id: new ObjectId(storeId) },
+                  {
+                    $push: {
+                      staffComments: {
+                        staffLineUserId: lineUserId,
+                        staffName: staff.name,
+                        staffRole: staff.role,
+                        staffPhoto: staff.photo || '',
+                        comment: comment,
+                        isApproved: true,
+                        isActive: true,
+                        createdAt: new Date()
+                      } as any
+                    } as any,
+                    $set: { 
+                      // アクティブコメントとして即時設定
+                      activeStaffComment: {
+                        staffLineUserId: lineUserId,
+                        staffName: staff.name,
+                        staffRole: staff.role,
+                        staffPhoto: staff.photo || '',
+                        comment: comment,
+                        updatedAt: new Date()
+                      },
+                      lastUpdated: new Date() 
+                    }
+                  }
+                );
+                
+                await mongoClient.close();
+                
+                if (updateResult.modifiedCount > 0) {
+                  await client.replyMessage({
+                    replyToken: event.replyToken,
+                    messages: [{
+                      type: 'text',
+                      text: `✅ ${store.name}のコメントを更新しました！\n\n投稿者：${staff.name}（${staff.role}）\n内容：${comment}\n\n※ウェブサイトに反映されました`
+                    }]
+                  });
+                  
+                  // Slack通知
+                  const slackMessage = createLineUpdateMessage(
+                    store.name,
+                    `${staff.name}（${staff.role}）`,
+                    'comment',
+                    comment
+                  );
+                  await sendSlackNotification(slackMessage);
+                } else {
+                  await client.replyMessage({
+                    replyToken: event.replyToken,
+                    messages: [{
+                      type: 'text',
+                      text: '❌ コメントの更新に失敗しました。'
+                    }]
+                  });
+                }
+              } catch (error) {
+                console.error('Error updating comment (multiple store):', error);
+                await client.replyMessage({
+                  replyToken: event.replyToken,
+                  messages: [{
+                    type: 'text',
+                    text: '❌ エラーが発生しました。もう一度お試しください。'
+                  }]
+                });
+              }
+              continue;
+            }
             
             if (match) {
               const [, storeId, storeName] = match;
@@ -309,7 +449,7 @@ export async function POST(request: NextRequest) {
               continue;
             }
             
-            // 役職選択の処理（シンプル版：名前は後から管理画面で設定）
+            // 役職選択の処理（LINE プロフィール情報を取得）
             if (roleMatch) {
               const [, storeId, storeName, role] = roleMatch;
               console.log('=== Staff Registration ===');
@@ -318,39 +458,73 @@ export async function POST(request: NextRequest) {
               console.log('Role:', role);
               console.log('Line User ID:', lineUserId);
               
-              // スタッフメンバーとして登録
-              const result = await addStaffMember(storeId, lineUserId, role, role);
-              console.log('Registration result:', result);
-              
-              if (result.success) {
-                // 管理画面のURLを生成
-                const adminUrl = `https://oyafukou-web.vercel.app/admin/stores/${storeId}/staff-comments`;
-                const isUpdate = result.message === '役職を更新しました';
+              try {
+                // LINE プロフィールを取得
+                const profile = await client.getProfile(lineUserId);
+                console.log('LINE Profile:', { displayName: profile.displayName, pictureUrl: profile.pictureUrl });
                 
-                await client.replyMessage({
-                  replyToken: event.replyToken,
-                  messages: [{
-                    type: 'text',
-                    text: `✅ ${storeName}への${isUpdate ? '登録情報を更新' : '登録が完了'}しました！\n\n登録情報：\n・役職：${role}\n\nこれから以下の情報を送信できます：\n・テキスト → コメント更新\n・画像 → プロフィール写真更新\n\n※お名前は管理画面から設定してください\n${adminUrl}`
-                  }]
-                });
-                
-                // Slack通知
-                const slackMessage = createLineUpdateMessage(
-                  storeName,
+                // スタッフメンバーとして登録（LINE表示名とプロフィール画像を使用）
+                const result = await addStaffMember(
+                  storeId, 
+                  lineUserId, 
+                  profile.displayName || role, // LINE表示名を使用、なければ役職名
                   role,
-                  'comment',
-                  isUpdate ? `スタッフ情報更新: ${role}` : `新規スタッフ登録: ${role}`
+                  profile.pictureUrl // プロフィール画像URL
                 );
-                await sendSlackNotification(slackMessage);
-              } else {
-                await client.replyMessage({
-                  replyToken: event.replyToken,
-                  messages: [{
-                    type: 'text',
-                    text: `❌ 登録に失敗しました: ${result.message}`
-                  }]
-                });
+                console.log('Registration result:', result);
+                
+                if (result.success) {
+                  // Web登録画面のURLを生成
+                  const registrationUrl = `https://oyafukou-web.vercel.app/admin/stores/${storeId}/staff-register?lineUserId=${lineUserId}&role=${encodeURIComponent(role)}`;
+                  
+                  await client.replyMessage({
+                    replyToken: event.replyToken,
+                    messages: [{
+                      type: 'text',
+                      text: `📝 ${storeName}への仮登録を受け付けました。\n\n【重要】本登録を完了してください：\n${registrationUrl}\n\n役職：${role}\n\n※本登録完了後にコメント投稿が可能になります。`
+                    }]
+                  });
+                  
+                  // Slack通知
+                  const slackMessage = createLineUpdateMessage(
+                    storeName,
+                    `${profile.displayName}（${role}）`,
+                    'comment',
+                    isUpdate ? `スタッフ情報更新: ${role}` : `新規スタッフ登録: ${role}`
+                  );
+                  await sendSlackNotification(slackMessage);
+                } else {
+                  await client.replyMessage({
+                    replyToken: event.replyToken,
+                    messages: [{
+                      type: 'text',
+                      text: `❌ 登録に失敗しました: ${result.message}`
+                    }]
+                  });
+                }
+              } catch (error) {
+                console.error('Error getting LINE profile or registering staff:', error);
+                // プロフィール取得に失敗した場合でも登録を続行（役職名を使用）
+                const result = await addStaffMember(storeId, lineUserId, role, role);
+                
+                if (result.success) {
+                  const isUpdate = result.message === '役職を更新しました';
+                  await client.replyMessage({
+                    replyToken: event.replyToken,
+                    messages: [{
+                      type: 'text',
+                      text: `✅ ${storeName}への${isUpdate ? '登録情報を更新' : '登録が完了'}しました！\n\n登録情報：\n・役職：${role}\n\nこれから以下の情報を送信できます：\n・テキスト → コメント更新\n・画像 → プロフィール写真更新`
+                    }]
+                  });
+                } else {
+                  await client.replyMessage({
+                    replyToken: event.replyToken,
+                    messages: [{
+                      type: 'text',
+                      text: `❌ 登録に失敗しました: ${result.message}`
+                    }]
+                  });
+                }
               }
               continue;
             }
@@ -391,7 +565,7 @@ export async function POST(request: NextRequest) {
               replyToken: event.replyToken,
               messages: [{
                 type: 'text',
-                text: '申し訳ございません。あなたのLINEアカウントは登録されていません。\n「登録」と送信して登録を開始してください。'
+                text: '⚠️ まだ本登録が完了していません。\n\n仮登録済みの場合は、送られたURLから本登録を完了してください。\n\n初めての場合は「登録」と送信してください。'
               }]
             });
             continue;
@@ -439,7 +613,34 @@ export async function POST(request: NextRequest) {
             }
             // 新システム（スタッフメンバー）の場合
             else if (staffInfo) {
-              const { store: staffStore, staff } = staffInfo;
+              // 複数店舗の場合
+              if ('isMultiple' in staffInfo && staffInfo.isMultiple) {
+                console.log('=== Multiple Stores Detected ===');
+                console.log('Stores:', staffInfo.stores.map((s: any) => s.store.name).join(', '));
+                
+                // 店舗選択のクイックリプライを表示
+                await client.replyMessage({
+                  replyToken: event.replyToken,
+                  messages: [{
+                    type: 'text',
+                    text: '複数の店舗に登録されています。\nコメントを更新する店舗を選択してください：',
+                    quickReply: {
+                      items: staffInfo.stores.map((info: any) => ({
+                        type: 'action',
+                        action: {
+                          type: 'message',
+                          label: info.store.name,
+                          text: `コメント更新:${info.store._id}:${messageText}`
+                        }
+                      }))
+                    }
+                  }]
+                });
+                continue;
+              }
+              
+              // 単一店舗の場合（従来の処理）
+              const { store: staffStore, staff } = staffInfo as { store: any; staff: any };
               console.log('=== Staff Comment Update ===');
               console.log('Store:', staffStore.name);
               console.log('Staff:', staff.name, `(${staff.role})`);
@@ -532,7 +733,92 @@ export async function POST(request: NextRequest) {
           else if (event.message.type === 'image') {
             // 新システム（スタッフメンバー）の場合
             if (staffInfo) {
-          const { store: staffStore, staff } = staffInfo;
+              // 複数店舗の場合
+              if ('isMultiple' in staffInfo && staffInfo.isMultiple) {
+                console.log('=== Multiple Stores for Photo Update ===');
+                console.log('Stores:', staffInfo.stores.map((s: any) => s.store.name).join(', '));
+                
+                // 画像を一時的に保存してから店舗選択を促す
+                try {
+                  // LINE から画像を取得
+                  const blobClient = new line.messagingApi.MessagingApiBlobClient({
+                    channelAccessToken: process.env.LINE_CHANNEL_ACCESS_TOKEN,
+                  });
+                  const stream = await blobClient.getMessageContent(event.message.id);
+                  const chunks: Uint8Array[] = [];
+                  
+                  for await (const chunk of stream) {
+                    chunks.push(chunk);
+                  }
+                  const buffer = Buffer.concat(chunks);
+                  
+                  // Vercel Blob に画像を一時アップロード
+                  const tempFilename = `temp-staff-photos/${lineUserId}_${Date.now()}.jpg`;
+                  const tempBlob = await put(tempFilename, buffer, {
+                    access: 'public',
+                    contentType: 'image/jpeg'
+                  });
+                  
+                  // 全店舗のプロフィール写真を一括更新
+                  const uri = process.env.MONGODB_URI!;
+                  const updateClient = new MongoClient(uri);
+                  await updateClient.connect();
+                  
+                  const db = updateClient.db('parent_site_admin');
+                  const { ObjectId } = await import('mongodb');
+                  
+                  // 複数店舗を一括更新
+                  const updatePromises = staffInfo.stores.map(async (info: any) => {
+                    return db.collection('stores').updateOne(
+                      { 
+                        _id: new ObjectId(info.store._id),
+                        'staffMembers.lineUserId': lineUserId
+                      },
+                      { 
+                        $set: { 
+                          'staffMembers.$.photo': tempBlob.url,
+                          lastUpdated: new Date()
+                        } 
+                      }
+                    );
+                  });
+                  
+                  await Promise.all(updatePromises);
+                  await updateClient.close();
+                  
+                  const storeNames = staffInfo.stores.map((info: any) => info.store.name).join('、');
+                  await client.replyMessage({
+                    replyToken: event.replyToken,
+                    messages: [{
+                      type: 'text',
+                      text: `✅ 以下の店舗のプロフィール写真を更新しました！\n\n${storeNames}`
+                    }]
+                  });
+                  
+                  // Slack通知（各店舗に対して）
+                  for (const info of staffInfo.stores) {
+                    const slackMessage = createLineUpdateMessage(
+                      info.store.name,
+                      `${info.staff.name}（${info.staff.role}）`,
+                      'photo'
+                    );
+                    await sendSlackNotification(slackMessage);
+                  }
+                } catch (error) {
+                  console.error('画像アップロードエラー（複数店舗）:', error);
+                  await client.replyMessage({
+                    replyToken: event.replyToken,
+                    messages: [{
+                      type: 'text',
+                      text: '❌ 画像のアップロードに失敗しました。もう一度お試しください。'
+                    }]
+                  });
+                }
+                continue;
+              }
+              
+              // 単一店舗の場合（従来の処理）
+              const { store: staffStore, staff } = staffInfo as { store: any; staff: any };
           
           try {
             // LINE から画像を取得
