@@ -3,7 +3,7 @@ import connectDB from '@/lib/mongodb';
 import ScheduledPost from '@/models/ScheduledPost';
 import TwitterToken from '@/models/TwitterToken';
 import PostLog from '@/models/PostLog';
-import { extractAndMoveUrls, broadcastToAccounts } from '@/lib/twitter';
+import { broadcastToAccounts } from '@/lib/twitter';
 
 // Vercel Cronジョブから呼び出される
 export async function GET(request: NextRequest) {

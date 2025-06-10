@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 
 interface TwitterAccount {
   _id: string;
@@ -25,7 +24,6 @@ interface PostLog {
 }
 
 export default function AdminSNSPage() {
-  const router = useRouter();
   const [accounts, setAccounts] = useState<TwitterAccount[]>([]);
   const [recentPosts, setRecentPosts] = useState<PostLog[]>([]);
   const [loading, setLoading] = useState(true);
