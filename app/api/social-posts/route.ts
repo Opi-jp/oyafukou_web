@@ -21,9 +21,9 @@ export async function GET() {
     const postsWithAccounts = posts.map(post => ({
       ...post.toObject(),
       accounts: post.accountIds
-        .map(id => accountMap.get(id))
+        .map((id: string) => accountMap.get(id))
         .filter(Boolean)
-        .map(acc => ({
+        .map((acc: any) => ({
           twitterHandle: acc.twitterHandle,
           displayName: acc.displayName
         }))
