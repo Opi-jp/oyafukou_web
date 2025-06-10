@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Header from '@/components/Header';
@@ -16,7 +16,7 @@ interface TwitterAccount {
   lastUsed?: Date;
 }
 
-export default function TwitterAccountsPage() {
+function TwitterAccountsContent() {
   const searchParams = useSearchParams();
   const [accounts, setAccounts] = useState<TwitterAccount[]>([]);
   const [loading, setLoading] = useState(true);
@@ -306,5 +306,22 @@ export default function TwitterAccountsPage() {
         </div>
       </div>
     </>
+  );
+}
+
+export default function TwitterAccountsPage() {
+  return (
+    <Suspense fallback={
+      <>
+        <Header />
+        <div className="min-h-screen bg-gray-100 pt-16">
+          <div className="container mx-auto px-4 py-8">
+            <div className="text-center">読み込み中...</div>
+          </div>
+        </div>
+      </>
+    }>
+      <TwitterAccountsContent />
+    </Suspense>
   );
 }
