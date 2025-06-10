@@ -520,6 +520,7 @@ export default function EditStore() {
                 )}
               </div>
 
+
               {/* スタッフ追加案内 */}
               <div className="mt-6 p-4 bg-yellow-50 rounded">
                 <p className="text-sm">

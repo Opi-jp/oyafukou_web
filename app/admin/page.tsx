@@ -119,30 +119,30 @@ export default function Admin() {
   return (
     <div className="min-h-screen bg-gray-100 text-gray-900">
       <header className="bg-gray-900 text-white p-4">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-          <h1 className="text-xl sm:text-2xl font-bold">八丈島親不孝通り 管理システム</h1>
-          <Link href="/" className="text-blue-400 hover:underline text-sm sm:text-base">
-            ← サイトに戻る
-          </Link>
+        <div className="max-w-7xl mx-auto">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-3">
+            <h1 className="text-xl sm:text-2xl font-bold">八丈島親不孝通り 管理システム</h1>
+            <Link href="/" className="text-blue-400 hover:underline text-sm sm:text-base">
+              ← サイトに戻る
+            </Link>
+          </div>
+          <nav className="flex flex-wrap gap-2 sm:gap-4 text-sm">
+            <span className="text-gray-400 font-semibold">WEB管理:</span>
+            <Link href="/admin/line-managers" className="text-blue-400 hover:underline">
+              LINE連携管理
+            </Link>
+            <Link href="/admin/line-setup" className="text-blue-400 hover:underline">
+              LINE設定
+            </Link>
+            <span className="text-gray-400">|</span>
+            <Link href="/admin/sns" className="text-yellow-400 hover:underline font-semibold">
+              SNS投稿管理
+            </Link>
+          </nav>
         </div>
       </header>
 
       <main className="max-w-7xl mx-auto p-4 sm:p-6">
-        {/* 管理メニュー */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          <Link href="/admin/twitter-accounts" className="bg-white rounded-lg shadow-md p-4 sm:p-6 hover:shadow-lg transition-shadow">
-            <h3 className="text-lg font-bold text-blue-400 mb-2">X(Twitter)管理</h3>
-            <p className="text-sm text-gray-600">Xアカウントの登録と投稿管理</p>
-          </Link>
-          <Link href="/admin/line-managers" className="bg-white rounded-lg shadow-md p-4 sm:p-6 hover:shadow-lg transition-shadow">
-            <h3 className="text-lg font-bold text-green-600 mb-2">LINE連携管理</h3>
-            <p className="text-sm text-gray-600">店長のLINEアカウントを管理し、コメント自動更新を設定</p>
-          </Link>
-          <Link href="/admin/line-setup" className="bg-white rounded-lg shadow-md p-4 sm:p-6 hover:shadow-lg transition-shadow">
-            <h3 className="text-lg font-bold text-green-600 mb-2">LINE Bot設定</h3>
-            <p className="text-sm text-gray-600">共通QRコードと登録手順を確認</p>
-          </Link>
-        </div>
 
         <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 mb-6">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">

@@ -4,13 +4,16 @@ import ScheduledPost from '@/models/ScheduledPost';
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
   try {
     await connectDB();
-    const { id } = await params;
     
-    const post = await ScheduledPost.findById(id);
+    const post = await ScheduledPost.findByIdAndUpdate(
+      params.id,
+      { status: 'cancelled' },
+      { new: true }
+    );
     
     if (!post) {
       return NextResponse.json(
@@ -19,20 +22,11 @@ export async function DELETE(
       );
     }
     
-    if (post.status !== 'pending') {
-      return NextResponse.json(
-        { error: 'キャンセルできるのは予約中の投稿のみです' },
-        { status: 400 }
-      );
-    }
-    
-    await ScheduledPost.findByIdAndDelete(id);
-    
-    return NextResponse.json({ message: '投稿をキャンセルしました' });
+    return NextResponse.json({ message: '予約投稿をキャンセルしました' });
   } catch (error) {
-    console.error('Error deleting post:', error);
+    console.error('Error cancelling scheduled post:', error);
     return NextResponse.json(
-      { error: '投稿のキャンセルに失敗しました' },
+      { error: '予約投稿のキャンセルに失敗しました' },
       { status: 500 }
     );
   }
