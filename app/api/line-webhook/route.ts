@@ -153,7 +153,14 @@ export async function POST(request: NextRequest) {
     const body = await request.text();
     const signature = request.headers.get('x-line-signature');
     
+    // デバッグ用: 署名検証の詳細をログ
+    console.log('Signature verification:');
+    console.log('- Has signature:', !!signature);
+    console.log('- Body length:', body.length);
+    console.log('- First 100 chars of body:', body.substring(0, 100));
+    
     if (!signature || !line.validateSignature(body, process.env.LINE_CHANNEL_SECRET, signature)) {
+      console.error('Signature validation failed');
       return NextResponse.json({ error: 'Invalid signature' }, { status: 403 });
     }
 
