@@ -131,6 +131,10 @@ async function updateManagerComment(storeId: string, comment: string) {
 }
 
 export async function POST(request: NextRequest) {
+  console.log('=== LINE Webhook Called ===');
+  console.log('Time:', new Date().toISOString());
+  console.log('Headers:', Object.fromEntries(request.headers.entries()));
+  
   try {
     // 環境変数のチェック
     if (!process.env.LINE_CHANNEL_ACCESS_TOKEN || !process.env.LINE_CHANNEL_SECRET) {
@@ -157,6 +161,8 @@ export async function POST(request: NextRequest) {
     
     // デバッグ用ログ
     console.log('Webhook received:', JSON.stringify(events, null, 2));
+    console.log('Total events:', events.length);
+    console.log('Event types:', events.map((e: any) => e.type).join(', '));
 
     for (const event of events) {
       const lineUserId = event.source.userId;
@@ -164,6 +170,8 @@ export async function POST(request: NextRequest) {
 
       // 友だち追加イベントの処理
       if (event.type === 'follow') {
+        console.log('=== Follow Event Detected ===');
+        console.log('User ID:', lineUserId);
         // 全店舗を取得
         const stores = await getAllStores();
         
